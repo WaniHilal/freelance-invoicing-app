@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelance Pro - Invoicing + Time Tracking</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Freelance Pro</h1>
+            <p>Time tracking + Invoicing for freelancers</p>
+            <div class="header-buttons">
+                <button id="exportDataBtn" class="btn-secondary">📤 Export Data</button>
+                <button id="importDataBtn" class="btn-secondary">📥 Import Data</button>
+            </div>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid" id="statsContainer">
+            <div class="stat-card">
+                <h3>Total Hours (This Month)</h3>
+                <div class="value" id="totalHours">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Unpaid Amount</h3>
+                <div class="value" id="unpaidAmount">$0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Paid Amount</h3>
+                <div class="value" id="paidAmount">$0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Projects</h3>
+                <div class="value" id="activeProjects">0</div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="timer">⏱️ Time Tracker</button>
+            <button class="tab-btn" data-tab="quickinvoice">⚡ Quick Invoice</button>
+            <button class="tab-btn" data-tab="invoices">📄 Invoices</button>
+            <button class="tab-btn" data-tab="clients">👥 Clients</button>
+            <button class="tab-btn" data-tab="entries">📋 Time Entries</button>
+        </div>
+
+        <!-- TIME TRACKER PANEL -->
+        <div id="timer" class="panel active-panel">
+            <div class="timer-section">
+                <h3>⏱️ Active Timer</h3>
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="form-group">
+                    <select id="projectSelect">
+                        <option value="">Select project/client...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="taskDescription" placeholder="What are you working on?">
+                </div>
+                <div class="timer-buttons">
+                    <button class="timer-btn" id="startTimerBtn">▶️ Start</button>
+                    <button class="timer-btn" id="stopTimerBtn" disabled>⏸️ Stop</button>
+                </div>
+            </div>
+            <h3>Recent Time Entries</h3>
+            <div class="table-responsive">
+                <table id="recentEntriesTable">
+                    <thead>
+                        <tr><th>Project</th><th>Description</th><th>Duration</th><th>Date</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="recentEntriesBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- QUICK INVOICE PANEL -->
+        <div id="quickinvoice" class="panel">
+            <div class="quick-invoice-header">
+                <h3>⚡ Create Invoice in Seconds</h3>
+                <p>No time tracking needed. Just add items and generate PDF.</p>
+            </div>
+            
+            <!-- Client Information -->
+            <div class="form-section">
+                <h4>Client Details</h4>
+                <div class="row">
+                    <div class="form-group flex-1">
+                        <label>Client Name *</label>
+                        <input type="text" id="qiClientName" placeholder="John Doe or Company Name">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Client Email</label>
+                        <input type="email" id="qiClientEmail" placeholder="client@example.com">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group flex-1">
+                        <label>Client Address (Optional)</label>
+                        <input type="text" id="qiClientAddress" placeholder="Street, City, Country">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Details -->
+            <div class="form-section">
+                <h4>Invoice Details</h4>
+                <div class="row">
+                    <div class="form-group flex-1">
+                        <label>Invoice Number</label>
+                        <input type="text" id="qiInvoiceNumber" placeholder="INV-001">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Issue Date</label>
+                        <input type="date" id="qiIssueDate">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Due Date</label>
+                        <input type="date" id="qiDueDate">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="form-section">
+                <h4>Items / Services</h4>
+                <div id="qiItemsContainer"></div>
+                <button id="qiAddItemBtn" class="btn-secondary" style="margin-top: 10px;">+ Add Item</button>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="form-section">
+                <h4>Additional Information</h4>
+                <div class="row">
+                    <div class="form-group flex-1">
+                        <label>Currency</label>
+                        <select id="qiCurrency">
+                            <option value="$">USD ($)</option>
+                            <option value="€">EUR (€)</option>
+                            <option value="£">GBP (£)</option>
+                            <option value="₹">INR (₹)</option>
+                            <option value="C$">CAD (C$)</option>
+                            <option value="A$">AUD (A$)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Tax Rate (%)</label>
+                        <input type="number" id="qiTaxRate" placeholder="0" value="0">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Discount ($)</label>
+                        <input type="number" id="qiDiscount" placeholder="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes / Payment Terms</label>
+                    <textarea id="qiNotes" rows="3" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="quick-invoice-actions">
+                <button id="qiPreviewBtn" class="btn-primary">👁️ Preview</button>
+                <button id="qiGeneratePDFBtn" class="btn-primary" style="background: #00d25b;">📄 Generate & Download PDF</button>
+                <button id="qiResetBtn" class="btn-secondary">⟳ Reset Form</button>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="invoice-preview" id="qiPreview" style="display: none;">
+                <h4>📄 Invoice Preview</h4>
+                <div id="qiPreviewContent" style="background: #f8f9fa; padding: 20px; border-radius: 16px; font-size: 0.85rem;"></div>
+            </div>
+        </div>
+
+        <!-- INVOICES PANEL -->
+        <div id="invoices" class="panel">
+            <button class="btn-primary" id="createInvoiceBtn">+ Create Invoice from Time Entries</button>
+            <div class="table-responsive">
+                <table id="invoicesTable">
+                    <thead>
+                        <tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="invoicesBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CLIENTS PANEL -->
+        <div id="clients" class="panel">
+            <button class="btn-primary" id="addClientBtn">+ Add Client</button>
+            <div class="table-responsive">
+                <table id="clientsTable">
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Hourly Rate</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="clientsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TIME ENTRIES PANEL -->
+        <div id="entries" class="panel">
+            <h3>All Time Entries</h3>
+            <div class="table-responsive">
+                <table id="allEntriesTable">
+                    <thead>
+                        <tr><th>Project</th><th>Description</th><th>Duration (hours)</th><th>Date</th><th>Invoiced</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="allEntriesBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVOICE MODAL -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Invoice from Time Entries</h2>
+            <div class="form-group">
+                <label>Select Client</label>
+                <select id="invoiceClientSelect"></select>
+            </div>
+            <div class="form-group">
+                <label>Select Time Entries</label>
+                <div id="timeEntriesChecklist"></div>
+            </div>
+            <div class="form-group">
+                <label>Additional Notes</label>
+                <textarea id="invoiceNotes" rows="3" placeholder="Payment terms, thanks, etc."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="generateInvoiceBtn">Generate Invoice</button>
+                <button class="btn-secondary" id="closeInvoiceModalBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENT MODAL -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Client</h2>
+            <div class="form-group"><label>Name</label><input id="clientName" placeholder="Client name"></div>
+            <div class="form-group"><label>Email</label><input id="clientEmail" placeholder="email@example.com"></div>
+            <div class="form-group"><label>Hourly Rate ($)</label><input id="clientRate" type="number" placeholder="50"></div>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="saveClientBtn">Save Client</button>
+                <button class="btn-secondary" id="closeClientModalBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 30px; padding: 20px; font-size: 0.75rem; color: #888;">
+        © 2025 Freelance Pro | Data stored locally in your browser
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
