@@ -13,66 +13,83 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>💰 Freelance Pro</h1>
-            <p>Time tracking + Invoicing for freelancers</p>
+            <div class="header-top">
+                <div>
+                    <h1 id="appTitle">💰 Freelance Pro</h1>
+                    <p id="appSubtitle">Time tracking + Invoicing for freelancers</p>
+                </div>
+                <div class="language-selector">
+                    <label for="languageSelect" id="langLabel">🌐 Language:</label>
+                    <select id="languageSelect">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="hi">🇮🇳 हिंदी</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                    </select>
+                </div>
+            </div>
             <div class="header-buttons">
-                <button id="exportDataBtn" class="btn-secondary">📤 Export Data</button>
-                <button id="importDataBtn" class="btn-secondary">📥 Import Data</button>
+                <button id="exportDataBtn" class="btn-secondary" data-key="exportData">📤 Export Data</button>
+                <button id="importDataBtn" class="btn-secondary" data-key="importData">📥 Import Data</button>
             </div>
         </div>
 
         <!-- Stats Dashboard -->
         <div class="stats-grid" id="statsContainer">
             <div class="stat-card">
-                <h3>Total Hours (This Month)</h3>
+                <h3 data-key="totalHoursLabel">Total Hours (This Month)</h3>
                 <div class="value" id="totalHours">0</div>
             </div>
             <div class="stat-card">
-                <h3>Unpaid Amount</h3>
+                <h3 data-key="unpaidAmountLabel">Unpaid Amount</h3>
                 <div class="value" id="unpaidAmount">$0</div>
             </div>
             <div class="stat-card">
-                <h3>Paid Amount</h3>
+                <h3 data-key="paidAmountLabel">Paid Amount</h3>
                 <div class="value" id="paidAmount">$0</div>
             </div>
             <div class="stat-card">
-                <h3>Active Projects</h3>
+                <h3 data-key="activeProjectsLabel">Active Projects</h3>
                 <div class="value" id="activeProjects">0</div>
             </div>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="timer">⏱️ Time Tracker</button>
-            <button class="tab-btn" data-tab="quickinvoice">⚡ Quick Invoice</button>
-            <button class="tab-btn" data-tab="invoices">📄 Invoices</button>
-            <button class="tab-btn" data-tab="clients">👥 Clients</button>
-            <button class="tab-btn" data-tab="entries">📋 Time Entries</button>
+            <button class="tab-btn active" data-tab="timer" data-key="timerTab">⏱️ Time Tracker</button>
+            <button class="tab-btn" data-tab="quickinvoice" data-key="quickInvoiceTab">⚡ Quick Invoice</button>
+            <button class="tab-btn" data-tab="invoices" data-key="invoicesTab">📄 Invoices</button>
+            <button class="tab-btn" data-tab="clients" data-key="clientsTab">👥 Clients</button>
+            <button class="tab-btn" data-tab="entries" data-key="entriesTab">📋 Time Entries</button>
         </div>
 
         <!-- TIME TRACKER PANEL -->
         <div id="timer" class="panel active-panel">
             <div class="timer-section">
-                <h3>⏱️ Active Timer</h3>
+                <h3 data-key="activeTimer">⏱️ Active Timer</h3>
                 <div class="timer-display" id="timerDisplay">00:00:00</div>
                 <div class="form-group">
                     <select id="projectSelect">
-                        <option value="">Select project/client...</option>
+                        <option value="" data-key="selectProject">Select project/client...</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <input type="text" id="taskDescription" placeholder="What are you working on?">
                 </div>
                 <div class="timer-buttons">
-                    <button class="timer-btn" id="startTimerBtn">▶️ Start</button>
-                    <button class="timer-btn" id="stopTimerBtn" disabled>⏸️ Stop</button>
+                    <button class="timer-btn" id="startTimerBtn" data-key="start">▶️ Start</button>
+                    <button class="timer-btn" id="stopTimerBtn" disabled data-key="stop">⏸️ Stop</button>
                 </div>
             </div>
-            <h3>Recent Time Entries</h3>
+            <h3 data-key="recentEntries">Recent Time Entries</h3>
             <div class="table-responsive">
                 <table id="recentEntriesTable">
                     <thead>
-                        <tr><th>Project</th><th>Description</th><th>Duration</th><th>Date</th><th>Action</th></tr>
+                        <tr><th data-key="project">Project</th><th data-key="description">Description</th><th data-key="duration">Duration</th><th data-key="date">Date</th><th data-key="action">Action</th></tr>
                     </thead>
                     <tbody id="recentEntriesBody"></tbody>
                 </table>
@@ -82,26 +99,26 @@
         <!-- QUICK INVOICE PANEL -->
         <div id="quickinvoice" class="panel">
             <div class="quick-invoice-header">
-                <h3>⚡ Create Invoice in Seconds</h3>
-                <p>No time tracking needed. Just add items and generate PDF.</p>
+                <h3 data-key="quickInvoiceTitle">⚡ Create Invoice in Seconds</h3>
+                <p data-key="quickInvoiceDesc">No time tracking needed. Just add items and generate PDF.</p>
             </div>
             
             <!-- Client Information -->
             <div class="form-section">
-                <h4>Client Details</h4>
+                <h4 data-key="clientDetails">Client Details</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label>Client Name *</label>
+                        <label data-key="clientName">Client Name *</label>
                         <input type="text" id="qiClientName" placeholder="John Doe or Company Name">
                     </div>
                     <div class="form-group flex-1">
-                        <label>Client Email</label>
+                        <label data-key="clientEmail">Client Email</label>
                         <input type="email" id="qiClientEmail" placeholder="client@example.com">
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label>Client Address (Optional)</label>
+                        <label data-key="clientAddress">Client Address (Optional)</label>
                         <input type="text" id="qiClientAddress" placeholder="Street, City, Country">
                     </div>
                 </div>
@@ -109,18 +126,18 @@
 
             <!-- Invoice Details -->
             <div class="form-section">
-                <h4>Invoice Details</h4>
+                <h4 data-key="invoiceDetails">Invoice Details</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label>Invoice Number</label>
+                        <label data-key="invoiceNumber">Invoice Number</label>
                         <input type="text" id="qiInvoiceNumber" placeholder="INV-001">
                     </div>
                     <div class="form-group flex-1">
-                        <label>Issue Date</label>
+                        <label data-key="issueDate">Issue Date</label>
                         <input type="date" id="qiIssueDate">
                     </div>
                     <div class="form-group flex-1">
-                        <label>Due Date</label>
+                        <label data-key="dueDate">Due Date</label>
                         <input type="date" id="qiDueDate">
                     </div>
                 </div>
@@ -128,62 +145,68 @@
 
             <!-- Line Items -->
             <div class="form-section">
-                <h4>Items / Services</h4>
+                <h4 data-key="itemsServices">Items / Services</h4>
                 <div id="qiItemsContainer"></div>
-                <button id="qiAddItemBtn" class="btn-secondary" style="margin-top: 10px;">+ Add Item</button>
+                <button id="qiAddItemBtn" class="btn-secondary" style="margin-top: 10px;" data-key="addItem">+ Add Item</button>
             </div>
 
             <!-- Additional Info -->
             <div class="form-section">
-                <h4>Additional Information</h4>
+                <h4 data-key="additionalInfo">Additional Information</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label>Currency</label>
+                        <label data-key="currency">Currency</label>
                         <select id="qiCurrency">
-                            <option value="$">USD ($)</option>
-                            <option value="€">EUR (€)</option>
-                            <option value="£">GBP (£)</option>
-                            <option value="₹">INR (₹)</option>
-                            <option value="C$">CAD (C$)</option>
-                            <option value="A$">AUD (A$)</option>
+                            <option value="$">USD ($) - US Dollar</option>
+                            <option value="€">EUR (€) - Euro</option>
+                            <option value="£">GBP (£) - British Pound</option>
+                            <option value="₹">INR (₹) - Indian Rupee</option>
+                            <option value="¥">CNY (¥) - Chinese Yuan</option>
+                            <option value="﷼">SAR (﷼) - Saudi Riyal</option>
+                            <option value="د.ك">KWD (د.ك) - Kuwaiti Dinar</option>
+                            <option value="₽">RUB (₽) - Russian Ruble</option>
+                            <option value="৳">BDT (৳) - Bangladeshi Taka</option>
+                            <option value="¥">JPY (¥) - Japanese Yen</option>
+                            <option value="C$">CAD (C$) - Canadian Dollar</option>
+                            <option value="A$">AUD (A$) - Australian Dollar</option>
                         </select>
                     </div>
                     <div class="form-group flex-1">
-                        <label>Tax Rate (%)</label>
+                        <label data-key="taxRate">Tax Rate (%)</label>
                         <input type="number" id="qiTaxRate" placeholder="0" value="0">
                     </div>
                     <div class="form-group flex-1">
-                        <label>Discount ($)</label>
+                        <label data-key="discount">Discount</label>
                         <input type="number" id="qiDiscount" placeholder="0" value="0">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Notes / Payment Terms</label>
+                    <label data-key="notes">Notes / Payment Terms</label>
                     <textarea id="qiNotes" rows="3" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
                 </div>
             </div>
 
             <!-- Actions -->
             <div class="quick-invoice-actions">
-                <button id="qiPreviewBtn" class="btn-primary">👁️ Preview</button>
-                <button id="qiGeneratePDFBtn" class="btn-primary" style="background: #00d25b;">📄 Generate & Download PDF</button>
-                <button id="qiResetBtn" class="btn-secondary">⟳ Reset Form</button>
+                <button id="qiPreviewBtn" class="btn-primary" data-key="preview">👁️ Preview</button>
+                <button id="qiGeneratePDFBtn" class="btn-primary" style="background: #00d25b;" data-key="generatePDF">📄 Generate & Download PDF</button>
+                <button id="qiResetBtn" class="btn-secondary" data-key="reset">⟳ Reset Form</button>
             </div>
 
             <!-- Live Preview -->
             <div class="invoice-preview" id="qiPreview" style="display: none;">
-                <h4>📄 Invoice Preview</h4>
+                <h4 data-key="invoicePreview">📄 Invoice Preview</h4>
                 <div id="qiPreviewContent" style="background: #f8f9fa; padding: 20px; border-radius: 16px; font-size: 0.85rem;"></div>
             </div>
         </div>
 
         <!-- INVOICES PANEL -->
         <div id="invoices" class="panel">
-            <button class="btn-primary" id="createInvoiceBtn">+ Create Invoice from Time Entries</button>
+            <button class="btn-primary" id="createInvoiceBtn" data-key="createInvoice">+ Create Invoice from Time Entries</button>
             <div class="table-responsive">
                 <table id="invoicesTable">
                     <thead>
-                        <tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                        <tr><th data-key="invoiceNum">Invoice #</th><th data-key="client">Client</th><th data-key="amount">Amount</th><th data-key="status">Status</th><th data-key="date">Date</th><th data-key="actions">Actions</th></tr>
                     </thead>
                     <tbody id="invoicesBody"></tbody>
                 </table>
@@ -192,11 +215,11 @@
 
         <!-- CLIENTS PANEL -->
         <div id="clients" class="panel">
-            <button class="btn-primary" id="addClientBtn">+ Add Client</button>
+            <button class="btn-primary" id="addClientBtn" data-key="addClient">+ Add Client</button>
             <div class="table-responsive">
                 <table id="clientsTable">
                     <thead>
-                        <tr><th>Name</th><th>Email</th><th>Hourly Rate</th><th>Actions</th></tr>
+                        <tr><th data-key="clientName">Name</th><th data-key="clientEmail">Email</th><th data-key="hourlyRate">Hourly Rate</th><th data-key="actions">Actions</th></tr>
                     </thead>
                     <tbody id="clientsBody"></tbody>
                 </table>
@@ -205,11 +228,11 @@
 
         <!-- TIME ENTRIES PANEL -->
         <div id="entries" class="panel">
-            <h3>All Time Entries</h3>
+            <h3 data-key="allTimeEntries">All Time Entries</h3>
             <div class="table-responsive">
                 <table id="allEntriesTable">
                     <thead>
-                        <tr><th>Project</th><th>Description</th><th>Duration (hours)</th><th>Date</th><th>Invoiced</th><th>Action</th></tr>
+                        <tr><th data-key="project">Project</th><th data-key="description">Description</th><th data-key="durationHours">Duration (hours)</th><th data-key="date">Date</th><th data-key="invoiced">Invoiced</th><th data-key="action">Action</th></tr>
                     </thead>
                     <tbody id="allEntriesBody"></tbody>
                 </table>
@@ -220,22 +243,22 @@
     <!-- INVOICE MODAL -->
     <div id="invoiceModal" class="modal">
         <div class="modal-content">
-            <h2>Create Invoice from Time Entries</h2>
+            <h2 data-key="createInvoiceTitle">Create Invoice from Time Entries</h2>
             <div class="form-group">
-                <label>Select Client</label>
+                <label data-key="selectClient">Select Client</label>
                 <select id="invoiceClientSelect"></select>
             </div>
             <div class="form-group">
-                <label>Select Time Entries</label>
+                <label data-key="selectEntries">Select Time Entries</label>
                 <div id="timeEntriesChecklist"></div>
             </div>
             <div class="form-group">
-                <label>Additional Notes</label>
+                <label data-key="additionalNotes">Additional Notes</label>
                 <textarea id="invoiceNotes" rows="3" placeholder="Payment terms, thanks, etc."></textarea>
             </div>
             <div class="modal-buttons">
-                <button class="btn-primary" id="generateInvoiceBtn">Generate Invoice</button>
-                <button class="btn-secondary" id="closeInvoiceModalBtn">Cancel</button>
+                <button class="btn-primary" id="generateInvoiceBtn" data-key="generateInvoice">Generate Invoice</button>
+                <button class="btn-secondary" id="closeInvoiceModalBtn" data-key="cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -243,13 +266,13 @@
     <!-- CLIENT MODAL -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
-            <h2>Add Client</h2>
-            <div class="form-group"><label>Name</label><input id="clientName" placeholder="Client name"></div>
-            <div class="form-group"><label>Email</label><input id="clientEmail" placeholder="email@example.com"></div>
-            <div class="form-group"><label>Hourly Rate ($)</label><input id="clientRate" type="number" placeholder="50"></div>
+            <h2 data-key="addClientTitle">Add Client</h2>
+            <div class="form-group"><label data-key="clientName">Name</label><input id="clientName" placeholder="Client name"></div>
+            <div class="form-group"><label data-key="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
+            <div class="form-group"><label data-key="hourlyRate">Hourly Rate</label><input id="clientRate" type="number" placeholder="50"></div>
             <div class="modal-buttons">
-                <button class="btn-primary" id="saveClientBtn">Save Client</button>
-                <button class="btn-secondary" id="closeClientModalBtn">Cancel</button>
+                <button class="btn-primary" id="saveClientBtn" data-key="save">Save Client</button>
+                <button class="btn-secondary" id="closeClientModalBtn" data-key="cancel">Cancel</button>
             </div>
         </div>
     </div>

@@ -7,14 +7,594 @@ let timerRunning = false;
 let timerSeconds = 0;
 let activeTimerProject = null;
 let activeTimerDesc = '';
+let currentLanguage = 'en';
 
-// Company info for PDF (customizable)
+// Multi-language translations
+const translations = {
+    en: {
+        appTitle: '💰 Freelance Pro',
+        appSubtitle: 'Time tracking + Invoicing for freelancers',
+        exportData: '📤 Export Data',
+        importData: '📥 Import Data',
+        totalHoursLabel: 'Total Hours (This Month)',
+        unpaidAmountLabel: 'Unpaid Amount',
+        paidAmountLabel: 'Paid Amount',
+        activeProjectsLabel: 'Active Projects',
+        timerTab: '⏱️ Time Tracker',
+        quickInvoiceTab: '⚡ Quick Invoice',
+        invoicesTab: '📄 Invoices',
+        clientsTab: '👥 Clients',
+        entriesTab: '📋 Time Entries',
+        activeTimer: '⏱️ Active Timer',
+        selectProject: 'Select project/client...',
+        start: '▶️ Start',
+        stop: '⏸️ Stop',
+        recentEntries: 'Recent Time Entries',
+        project: 'Project',
+        description: 'Description',
+        duration: 'Duration',
+        date: 'Date',
+        action: 'Action',
+        quickInvoiceTitle: '⚡ Create Invoice in Seconds',
+        quickInvoiceDesc: 'No time tracking needed. Just add items and generate PDF.',
+        clientDetails: 'Client Details',
+        clientName: 'Client Name *',
+        clientEmail: 'Client Email',
+        clientAddress: 'Client Address (Optional)',
+        invoiceDetails: 'Invoice Details',
+        invoiceNumber: 'Invoice Number',
+        issueDate: 'Issue Date',
+        dueDate: 'Due Date',
+        itemsServices: 'Items / Services',
+        addItem: '+ Add Item',
+        additionalInfo: 'Additional Information',
+        currency: 'Currency',
+        taxRate: 'Tax Rate (%)',
+        discount: 'Discount',
+        notes: 'Notes / Payment Terms',
+        preview: '👁️ Preview',
+        generatePDF: '📄 Generate & Download PDF',
+        reset: '⟳ Reset Form',
+        invoicePreview: '📄 Invoice Preview',
+        createInvoice: '+ Create Invoice from Time Entries',
+        invoiceNum: 'Invoice #',
+        client: 'Client',
+        amount: 'Amount',
+        status: 'Status',
+        actions: 'Actions',
+        addClient: '+ Add Client',
+        hourlyRate: 'Hourly Rate',
+        allTimeEntries: 'All Time Entries',
+        durationHours: 'Duration (hours)',
+        invoiced: 'Invoiced',
+        createInvoiceTitle: 'Create Invoice from Time Entries',
+        selectClient: 'Select Client',
+        selectEntries: 'Select Time Entries',
+        additionalNotes: 'Additional Notes',
+        generateInvoice: 'Generate Invoice',
+        cancel: 'Cancel',
+        addClientTitle: 'Add Client',
+        save: 'Save Client',
+        yes: 'Yes',
+        no: 'No',
+        delete: 'Delete',
+        view: 'View',
+        markPaid: 'Mark Paid',
+        paid: 'paid',
+        unpaid: 'unpaid'
+    },
+    es: {
+        appTitle: '💰 Freelance Pro',
+        appSubtitle: 'Seguimiento de tiempo + Facturación para freelancers',
+        exportData: '📤 Exportar Datos',
+        importData: '📥 Importar Datos',
+        totalHoursLabel: 'Horas Totales (Este Mes)',
+        unpaidAmountLabel: 'Monto Pendiente',
+        paidAmountLabel: 'Monto Pagado',
+        activeProjectsLabel: 'Proyectos Activos',
+        timerTab: '⏱️ Temporizador',
+        quickInvoiceTab: '⚡ Factura Rápida',
+        invoicesTab: '📄 Facturas',
+        clientsTab: '👥 Clientes',
+        entriesTab: '📋 Registros',
+        activeTimer: '⏱️ Temporizador Activo',
+        selectProject: 'Seleccionar proyecto/cliente...',
+        start: '▶️ Iniciar',
+        stop: '⏸️ Detener',
+        recentEntries: 'Registros Recientes',
+        project: 'Proyecto',
+        description: 'Descripción',
+        duration: 'Duración',
+        date: 'Fecha',
+        action: 'Acción',
+        quickInvoiceTitle: '⚡ Crea Factura en Segundos',
+        quickInvoiceDesc: 'No necesitas seguimiento de tiempo. Solo agrega items y genera PDF.',
+        clientDetails: 'Detalles del Cliente',
+        clientName: 'Nombre del Cliente *',
+        clientEmail: 'Correo del Cliente',
+        clientAddress: 'Dirección del Cliente (Opcional)',
+        invoiceDetails: 'Detalles de Factura',
+        invoiceNumber: 'Número de Factura',
+        issueDate: 'Fecha de Emisión',
+        dueDate: 'Fecha de Vencimiento',
+        itemsServices: 'Items / Servicios',
+        addItem: '+ Agregar Item',
+        additionalInfo: 'Información Adicional',
+        currency: 'Moneda',
+        taxRate: 'Tasa de Impuesto (%)',
+        discount: 'Descuento',
+        notes: 'Notas / Términos de Pago',
+        preview: '👁️ Vista Previa',
+        generatePDF: '📄 Generar y Descargar PDF',
+        reset: '⟳ Reiniciar Formulario',
+        invoicePreview: '📄 Vista Previa de Factura',
+        createInvoice: '+ Crear Factura desde Registros',
+        invoiceNum: 'Factura #',
+        client: 'Cliente',
+        amount: 'Monto',
+        status: 'Estado',
+        actions: 'Acciones',
+        addClient: '+ Agregar Cliente',
+        hourlyRate: 'Tarifa por Hora',
+        allTimeEntries: 'Todos los Registros',
+        durationHours: 'Duración (horas)',
+        invoiced: 'Facturado',
+        createInvoiceTitle: 'Crear Factura desde Registros',
+        selectClient: 'Seleccionar Cliente',
+        selectEntries: 'Seleccionar Registros',
+        additionalNotes: 'Notas Adicionales',
+        generateInvoice: 'Generar Factura',
+        cancel: 'Cancelar',
+        addClientTitle: 'Agregar Cliente',
+        save: 'Guardar Cliente',
+        yes: 'Sí',
+        no: 'No',
+        delete: 'Eliminar',
+        view: 'Ver',
+        markPaid: 'Marcar Pagado',
+        paid: 'pagado',
+        unpaid: 'pendiente'
+    },
+    fr: {
+        appTitle: '💰 Freelance Pro',
+        appSubtitle: 'Suivi du temps + Facturation pour freelances',
+        exportData: '📤 Exporter les données',
+        importData: '📥 Importer les données',
+        totalHoursLabel: 'Heures totales (ce mois)',
+        unpaidAmountLabel: 'Montant impayé',
+        paidAmountLabel: 'Montant payé',
+        activeProjectsLabel: 'Projets actifs',
+        timerTab: '⏱️ Chronomètre',
+        quickInvoiceTab: '⚡ Facture rapide',
+        invoicesTab: '📄 Factures',
+        clientsTab: '👥 Clients',
+        entriesTab: '📋 Entrées',
+        activeTimer: '⏱️ Chronomètre actif',
+        selectProject: 'Sélectionner un projet/client...',
+        start: '▶️ Démarrer',
+        stop: '⏸️ Arrêter',
+        recentEntries: 'Entrées récentes',
+        project: 'Projet',
+        description: 'Description',
+        duration: 'Durée',
+        date: 'Date',
+        action: 'Action',
+        quickInvoiceTitle: '⚡ Créer une facture en quelques secondes',
+        quickInvoiceDesc: "Pas de suivi du temps nécessaire. Ajoutez des articles et générez un PDF.",
+        clientDetails: 'Coordonnées du client',
+        clientName: 'Nom du client *',
+        clientEmail: 'Email du client',
+        clientAddress: 'Adresse du client (optionnel)',
+        invoiceDetails: 'Détails de la facture',
+        invoiceNumber: 'Numéro de facture',
+        issueDate: "Date d'émission",
+        dueDate: 'Date déchéance',
+        itemsServices: 'Articles / Services',
+        addItem: "+ Ajouter un article",
+        additionalInfo: 'Informations complémentaires',
+        currency: 'Devise',
+        taxRate: "Taux d'imposition (%)",
+        discount: 'Remise',
+        notes: 'Notes / Conditions de paiement',
+        preview: '👁️ Aperçu',
+        generatePDF: '📄 Générer et télécharger le PDF',
+        reset: '⟳ Réinitialiser',
+        invoicePreview: '📄 Aperçu de la facture',
+        createInvoice: '+ Créer une facture à partir des entrées',
+        invoiceNum: 'Facture #',
+        client: 'Client',
+        amount: 'Montant',
+        status: 'Statut',
+        actions: 'Actions',
+        addClient: '+ Ajouter un client',
+        hourlyRate: 'Tarif horaire',
+        allTimeEntries: 'Toutes les entrées',
+        durationHours: 'Durée (heures)',
+        invoiced: 'Facturé',
+        createInvoiceTitle: 'Créer une facture à partir des entrées',
+        selectClient: 'Sélectionner un client',
+        selectEntries: 'Sélectionner les entrées',
+        additionalNotes: 'Notes supplémentaires',
+        generateInvoice: 'Générer la facture',
+        cancel: 'Annuler',
+        addClientTitle: 'Ajouter un client',
+        save: 'Enregistrer',
+        yes: 'Oui',
+        no: 'Non',
+        delete: 'Supprimer',
+        view: 'Voir',
+        markPaid: 'Marquer comme payé',
+        paid: 'payé',
+        unpaid: 'impayé'
+    },
+    de: {
+        appTitle: '💰 Freelance Pro',
+        appSubtitle: 'Zeiterfassung + Rechnungsstellung für Freiberufler',
+        exportData: '📤 Daten exportieren',
+        importData: '📥 Daten importieren',
+        totalHoursLabel: 'Gesamtstunden (diesen Monat)',
+        unpaidAmountLabel: 'Offener Betrag',
+        paidAmountLabel: 'Bezahlter Betrag',
+        activeProjectsLabel: 'Aktive Projekte',
+        timerTab: '⏱️ Zeiterfassung',
+        quickInvoiceTab: '⚡ Schnellrechnung',
+        invoicesTab: '📄 Rechnungen',
+        clientsTab: '👥 Kunden',
+        entriesTab: '📋 Einträge',
+        activeTimer: '⏱️ Aktiver Timer',
+        selectProject: 'Projekt/Kunde auswählen...',
+        start: '▶️ Start',
+        stop: '⏸️ Stopp',
+        recentEntries: 'Letzte Einträge',
+        project: 'Projekt',
+        description: 'Beschreibung',
+        duration: 'Dauer',
+        date: 'Datum',
+        action: 'Aktion',
+        quickInvoiceTitle: '⚡ Rechnung in Sekunden erstellen',
+        quickInvoiceDesc: 'Keine Zeiterfassung nötig. Einfach Positionen hinzufügen und PDF generieren.',
+        clientDetails: 'Kundendetails',
+        clientName: 'Kundenname *',
+        clientEmail: 'Kunden-E-Mail',
+        clientAddress: 'Kundenadresse (optional)',
+        invoiceDetails: 'Rechnungsdetails',
+        invoiceNumber: 'Rechnungsnummer',
+        issueDate: 'Ausstellungsdatum',
+        dueDate: 'Fälligkeitsdatum',
+        itemsServices: 'Positionen / Dienstleistungen',
+        addItem: '+ Position hinzufügen',
+        additionalInfo: 'Zusätzliche Informationen',
+        currency: 'Währung',
+        taxRate: 'Steuersatz (%)',
+        discount: 'Rabatt',
+        notes: 'Notizen / Zahlungsbedingungen',
+        preview: '👁️ Vorschau',
+        generatePDF: '📄 PDF generieren & herunterladen',
+        reset: '⟳ Formular zurücksetzen',
+        invoicePreview: '📄 Rechnungsvorschau',
+        createInvoice: '+ Rechnung aus Zeiteinträgen erstellen',
+        invoiceNum: 'Rechnung #',
+        client: 'Kunde',
+        amount: 'Betrag',
+        status: 'Status',
+        actions: 'Aktionen',
+        addClient: '+ Kunde hinzufügen',
+        hourlyRate: 'Stundensatz',
+        allTimeEntries: 'Alle Zeiteinträge',
+        durationHours: 'Dauer (Stunden)',
+        invoiced: 'Abgerechnet',
+        createInvoiceTitle: 'Rechnung aus Zeiteinträgen erstellen',
+        selectClient: 'Kunde auswählen',
+        selectEntries: 'Zeiteinträge auswählen',
+        additionalNotes: 'Zusätzliche Notizen',
+        generateInvoice: 'Rechnung erstellen',
+        cancel: 'Abbrechen',
+        addClientTitle: 'Kunde hinzufügen',
+        save: 'Speichern',
+        yes: 'Ja',
+        no: 'Nein',
+        delete: 'Löschen',
+        view: 'Ansehen',
+        markPaid: 'Als bezahlt markieren',
+        paid: 'bezahlt',
+        unpaid: 'offen'
+    },
+    hi: {
+        appTitle: '💰 फ्रीलांस प्रो',
+        appSubtitle: 'समय ट्रैकिंग + फ्रीलांसरों के लिए इनवॉइसिंग',
+        exportData: '📤 डेटा निर्यात करें',
+        importData: '📥 डेटा आयात करें',
+        totalHoursLabel: 'कुल घंटे (इस महीने)',
+        unpaidAmountLabel: 'बकाया राशि',
+        paidAmountLabel: 'भुगतान राशि',
+        activeProjectsLabel: 'सक्रिय परियोजनाएं',
+        timerTab: '⏱️ टाइमर',
+        quickInvoiceTab: '⚡ त्वरित इनवॉइस',
+        invoicesTab: '📄 इनवॉइस',
+        clientsTab: '👥 ग्राहक',
+        entriesTab: '📋 प्रविष्टियाँ',
+        activeTimer: '⏱️ सक्रिय टाइमर',
+        selectProject: 'परियोजना/ग्राहक चुनें...',
+        start: '▶️ शुरू करें',
+        stop: '⏸️ रोकें',
+        recentEntries: 'हाल की प्रविष्टियाँ',
+        project: 'परियोजना',
+        description: 'विवरण',
+        duration: 'अवधि',
+        date: 'तारीख',
+        action: 'कार्रवाई',
+        quickInvoiceTitle: '⚡ सेकंडों में इनवॉइस बनाएं',
+        quickInvoiceDesc: 'समय ट्रैकिंग की आवश्यकता नहीं। आइटम जोड़ें और पीडीएफ बनाएं।',
+        clientDetails: 'ग्राहक विवरण',
+        clientName: 'ग्राहक का नाम *',
+        clientEmail: 'ग्राहक ईमेल',
+        clientAddress: 'ग्राहक पता (वैकल्पिक)',
+        invoiceDetails: 'इनवॉइस विवरण',
+        invoiceNumber: 'इनवॉइस संख्या',
+        issueDate: 'जारी करने की तारीख',
+        dueDate: 'भुगतान तिथि',
+        itemsServices: 'आइटम / सेवाएं',
+        addItem: '+ आइटम जोड़ें',
+        additionalInfo: 'अतिरिक्त जानकारी',
+        currency: 'मुद्रा',
+        taxRate: 'कर दर (%)',
+        discount: 'छूट',
+        notes: 'नोट्स / भुगतान शर्तें',
+        preview: '👁️ पूर्वावलोकन',
+        generatePDF: '📄 पीडीएफ बनाएं और डाउनलोड करें',
+        reset: '⟳ फॉर्म रीसेट करें',
+        invoicePreview: '📄 इनवॉइस पूर्वावलोकन',
+        createInvoice: '+ समय प्रविष्टियों से इनवॉइस बनाएं',
+        invoiceNum: 'इनवॉइस #',
+        client: 'ग्राहक',
+        amount: 'राशि',
+        status: 'स्थिति',
+        actions: 'कार्रवाई',
+        addClient: '+ ग्राहक जोड़ें',
+        hourlyRate: 'प्रति घंटा दर',
+        allTimeEntries: 'सभी समय प्रविष्टियाँ',
+        durationHours: 'अवधि (घंटे)',
+        invoiced: 'बिल भेजा गया',
+        createInvoiceTitle: 'समय प्रविष्टियों से इनवॉइस बनाएं',
+        selectClient: 'ग्राहक चुनें',
+        selectEntries: 'समय प्रविष्टियाँ चुनें',
+        additionalNotes: 'अतिरिक्त नोट्स',
+        generateInvoice: 'इनवॉइस बनाएं',
+        cancel: 'रद्द करें',
+        addClientTitle: 'ग्राहक जोड़ें',
+        save: 'सहेजें',
+        yes: 'हाँ',
+        no: 'नहीं',
+        delete: 'हटाएं',
+        view: 'देखें',
+        markPaid: 'भुगतान चिह्नित करें',
+        paid: 'भुगतान किया',
+        unpaid: 'बकाया'
+    },
+    ar: {
+        appTitle: '💰 فريلانسر برو',
+        appSubtitle: 'تتبع الوقت + إصدار الفواتير للمستقلين',
+        exportData: '📤 تصدير البيانات',
+        importData: '📥 استيراد البيانات',
+        totalHoursLabel: 'إجمالي الساعات (هذا الشهر)',
+        unpaidAmountLabel: 'المبلغ غير المدفوع',
+        paidAmountLabel: 'المبلغ المدفوع',
+        activeProjectsLabel: 'المشاريع النشطة',
+        timerTab: '⏱️ المؤقت',
+        quickInvoiceTab: '⚡ فاتورة سريعة',
+        invoicesTab: '📄 الفواتير',
+        clientsTab: '👥 العملاء',
+        entriesTab: '📋 الإدخالات',
+        activeTimer: '⏱️ المؤقت النشط',
+        selectProject: 'اختر مشروع/عميل...',
+        start: '▶️ بدء',
+        stop: '⏸️ إيقاف',
+        recentEntries: 'الإدخالات الأخيرة',
+        project: 'المشروع',
+        description: 'الوصف',
+        duration: 'المدة',
+        date: 'التاريخ',
+        action: 'إجراء',
+        quickInvoiceTitle: '⚡ إنشاء فاتورة في ثوانٍ',
+        quickInvoiceDesc: 'لا حاجة لتتبع الوقت. فقط أضف العناصر وأنشئ PDF.',
+        clientDetails: 'تفاصيل العميل',
+        clientName: 'اسم العميل *',
+        clientEmail: 'بريد العميل الإلكتروني',
+        clientAddress: 'عنوان العميل (اختياري)',
+        invoiceDetails: 'تفاصيل الفاتورة',
+        invoiceNumber: 'رقم الفاتورة',
+        issueDate: 'تاريخ الإصدار',
+        dueDate: 'تاريخ الاستحقاق',
+        itemsServices: 'العناصر / الخدمات',
+        addItem: '+ إضافة عنصر',
+        additionalInfo: 'معلومات إضافية',
+        currency: 'العملة',
+        taxRate: 'نسبة الضريبة (%)',
+        discount: 'الخصم',
+        notes: 'ملاحظات / شروط الدفع',
+        preview: '👁️ معاينة',
+        generatePDF: '📄 إنشاء وتحميل PDF',
+        reset: '⟳ إعادة تعيين النموذج',
+        invoicePreview: '📄 معاينة الفاتورة',
+        createInvoice: '+ إنشاء فاتورة من إدخالات الوقت',
+        invoiceNum: 'الفاتورة #',
+        client: 'العميل',
+        amount: 'المبلغ',
+        status: 'الحالة',
+        actions: 'الإجراءات',
+        addClient: '+ إضافة عميل',
+        hourlyRate: 'السعر بالساعة',
+        allTimeEntries: 'جميع إدخالات الوقت',
+        durationHours: 'المدة (ساعات)',
+        invoiced: 'تم الفوترة',
+        createInvoiceTitle: 'إنشاء فاتورة من إدخالات الوقت',
+        selectClient: 'اختر العميل',
+        selectEntries: 'اختر إدخالات الوقت',
+        additionalNotes: 'ملاحظات إضافية',
+        generateInvoice: 'إنشاء الفاتورة',
+        cancel: 'إلغاء',
+        addClientTitle: 'إضافة عميل',
+        save: 'حفظ',
+        yes: 'نعم',
+        no: 'لا',
+        delete: 'حذف',
+        view: 'عرض',
+        markPaid: 'تحديد كمدفوع',
+        paid: 'مدفوع',
+        unpaid: 'غير مدفوع'
+    },
+    zh: {
+        appTitle: '💰 自由职业者专业版',
+        appSubtitle: '自由职业者的时间跟踪 + 发票管理',
+        exportData: '📤 导出数据',
+        importData: '📥 导入数据',
+        totalHoursLabel: '总小时数（本月）',
+        unpaidAmountLabel: '未付金额',
+        paidAmountLabel: '已付金额',
+        activeProjectsLabel: '活跃项目',
+        timerTab: '⏱️ 计时器',
+        quickInvoiceTab: '⚡ 快速发票',
+        invoicesTab: '📄 发票',
+        clientsTab: '👥 客户',
+        entriesTab: '📋 记录',
+        activeTimer: '⏱️ 活跃计时器',
+        selectProject: '选择项目/客户...',
+        start: '▶️ 开始',
+        stop: '⏸️ 停止',
+        recentEntries: '最近记录',
+        project: '项目',
+        description: '描述',
+        duration: '时长',
+        date: '日期',
+        action: '操作',
+        quickInvoiceTitle: '⚡ 秒速创建发票',
+        quickInvoiceDesc: '无需时间跟踪。只需添加项目并生成PDF。',
+        clientDetails: '客户详情',
+        clientName: '客户名称 *',
+        clientEmail: '客户邮箱',
+        clientAddress: '客户地址（可选）',
+        invoiceDetails: '发票详情',
+        invoiceNumber: '发票号码',
+        issueDate: '签发日期',
+        dueDate: '到期日期',
+        itemsServices: '项目/服务',
+        addItem: '+ 添加项目',
+        additionalInfo: '附加信息',
+        currency: '货币',
+        taxRate: '税率 (%)',
+        discount: '折扣',
+        notes: '备注 / 付款条款',
+        preview: '👁️ 预览',
+        generatePDF: '📄 生成并下载PDF',
+        reset: '⟳ 重置表单',
+        invoicePreview: '📄 发票预览',
+        createInvoice: '+ 从时间记录创建发票',
+        invoiceNum: '发票 #',
+        client: '客户',
+        amount: '金额',
+        status: '状态',
+        actions: '操作',
+        addClient: '+ 添加客户',
+        hourlyRate: '时薪',
+        allTimeEntries: '所有时间记录',
+        durationHours: '时长（小时）',
+        invoiced: '已开票',
+        createInvoiceTitle: '从时间记录创建发票',
+        selectClient: '选择客户',
+        selectEntries: '选择时间记录',
+        additionalNotes: '附加备注',
+        generateInvoice: '生成发票',
+        cancel: '取消',
+        addClientTitle: '添加客户',
+        save: '保存',
+        yes: '是',
+        no: '否',
+        delete: '删除',
+        view: '查看',
+        markPaid: '标记为已付',
+        paid: '已付',
+        unpaid: '未付'
+    },
+    ru: {
+        appTitle: '💰 Фриланс Про',
+        appSubtitle: 'Отслеживание времени + Выставление счетов для фрилансеров',
+        exportData: '📤 Экспорт данных',
+        importData: '📥 Импорт данных',
+        totalHoursLabel: 'Всего часов (за месяц)',
+        unpaidAmountLabel: 'Неоплаченная сумма',
+        paidAmountLabel: 'Оплаченная сумма',
+        activeProjectsLabel: 'Активные проекты',
+        timerTab: '⏱️ Таймер',
+        quickInvoiceTab: '⚡ Быстрый счет',
+        invoicesTab: '📄 Счета',
+        clientsTab: '👥 Клиенты',
+        entriesTab: '📋 Записи',
+        activeTimer: '⏱️ Активный таймер',
+        selectProject: 'Выберите проект/клиента...',
+        start: '▶️ Старт',
+        stop: '⏸️ Стоп',
+        recentEntries: 'Последние записи',
+        project: 'Проект',
+        description: 'Описание',
+        duration: 'Длительность',
+        date: 'Дата',
+        action: 'Действие',
+        quickInvoiceTitle: '⚡ Создать счет за секунды',
+        quickInvoiceDesc: 'Отслеживание времени не требуется. Просто добавьте позиции и создайте PDF.',
+        clientDetails: 'Данные клиента',
+        clientName: 'Имя клиента *',
+        clientEmail: 'Email клиента',
+        clientAddress: 'Адрес клиента (опционально)',
+        invoiceDetails: 'Детали счета',
+        invoiceNumber: 'Номер счета',
+        issueDate: 'Дата выставления',
+        dueDate: 'Срок оплаты',
+        itemsServices: 'Позиции / Услуги',
+        addItem: '+ Добавить позицию',
+        additionalInfo: 'Дополнительная информация',
+        currency: 'Валюта',
+        taxRate: 'Налоговая ставка (%)',
+        discount: 'Скидка',
+        notes: 'Примечания / Условия оплаты',
+        preview: '👁️ Предпросмотр',
+        generatePDF: '📄 Создать и скачать PDF',
+        reset: '⟳ Сбросить форму',
+        invoicePreview: '📄 Предпросмотр счета',
+        createInvoice: '+ Создать счет из записей времени',
+        invoiceNum: 'Счет #',
+        client: 'Клиент',
+        amount: 'Сумма',
+        status: 'Статус',
+        actions: 'Действия',
+        addClient: '+ Добавить клиента',
+        hourlyRate: 'Почасовая ставка',
+        allTimeEntries: 'Все записи времени',
+        durationHours: 'Длительность (часы)',
+        invoiced: 'Выставлен счет',
+        createInvoiceTitle: 'Создать счет из записей времени',
+        selectClient: 'Выберите клиента',
+        selectEntries: 'Выберите записи времени',
+        additionalNotes: 'Дополнительные примечания',
+        generateInvoice: 'Создать счет',
+        cancel: 'Отмена',
+        addClientTitle: 'Добавить клиента',
+        save: 'Сохранить',
+        yes: 'Да',
+        no: 'Нет',
+        delete: 'Удалить',
+        view: 'Просмотр',
+        markPaid: 'Отметить как оплаченный',
+        paid: 'оплачен',
+        unpaid: 'не оплачен'
+    }
+};
+
+// Company info for PDF
 let companyInfo = {
     name: 'Freelance Pro',
     email: 'hello@freelancepro.com',
     phone: '+1 (555) 123-4567',
     address: '123 Business St, Suite 100, New York, NY 10001',
-    // Payment details
     bankName: 'Chase Bank',
     accountName: 'Your Business Name',
     accountNumber: 'XXXXXXXX1234',
@@ -32,11 +612,13 @@ function loadData() {
     const savedEntries = localStorage.getItem('freelance_entries');
     const savedInvoices = localStorage.getItem('freelance_invoices');
     const savedCompany = localStorage.getItem('freelance_company');
+    const savedLanguage = localStorage.getItem('freelance_language');
     
     if (savedClients) clients = JSON.parse(savedClients);
     if (savedEntries) timeEntries = JSON.parse(savedEntries);
     if (savedInvoices) invoices = JSON.parse(savedInvoices);
     if (savedCompany) companyInfo = JSON.parse(savedCompany);
+    if (savedLanguage) currentLanguage = savedLanguage;
     
     // Add sample data if empty
     if (clients.length === 0) {
@@ -53,11 +635,12 @@ function loadData() {
     }
     if (invoices.length === 0) {
         invoices = [
-            { id: 1, invoiceNumber: 'INV-001', clientId: 1, amount: 337.5, status: 'paid', date: getTodayDate(), entries: [1], notes: 'Thanks for your business!' }
+            { id: 1, invoiceNumber: 'INV-001', clientId: 1, amount: 337.5, status: 'paid', date: getTodayDate(), entries: [1], notes: 'Thanks for your business!', currency: '$' }
         ];
     }
     saveAll();
     refreshAll();
+    updateUILanguage();
 }
 
 function getTodayDate() {
@@ -69,6 +652,43 @@ function saveAll() {
     localStorage.setItem('freelance_entries', JSON.stringify(timeEntries));
     localStorage.setItem('freelance_invoices', JSON.stringify(invoices));
     localStorage.setItem('freelance_company', JSON.stringify(companyInfo));
+    localStorage.setItem('freelance_language', currentLanguage);
+}
+
+// Multi-language UI update
+function updateUILanguage() {
+    const t = translations[currentLanguage];
+    if (!t) return;
+    
+    // Update all elements with data-key attribute
+    document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (t[key]) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                if (el.placeholder && t[key]) el.placeholder = t[key];
+            } else {
+                // Preserve emoji and icons
+                const originalText = el.innerHTML;
+                const hasIcon = originalText.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
+                if (hasIcon) {
+                    const iconMatch = originalText.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
+                    el.innerHTML = iconMatch ? iconMatch[0] + ' ' + t[key] : t[key];
+                } else {
+                    el.innerHTML = t[key];
+                }
+            }
+        }
+    });
+    
+    // Update title and subtitle
+    document.getElementById('appTitle').innerHTML = t.appTitle;
+    document.getElementById('appSubtitle').innerHTML = t.appSubtitle;
+    
+    // Update select options placeholder
+    const projectSelect = document.getElementById('projectSelect');
+    if (projectSelect && projectSelect.options[0]) {
+        projectSelect.options[0].text = t.selectProject;
+    }
 }
 
 function refreshAll() {
@@ -78,6 +698,7 @@ function refreshAll() {
     refreshInvoicesTable();
     refreshClientsTable();
     refreshAllEntriesTable();
+    updateUILanguage();
 }
 
 function refreshStats() {
@@ -103,8 +724,9 @@ function refreshStats() {
 }
 
 function refreshProjectSelect() {
+    const t = translations[currentLanguage];
     const select = document.getElementById('projectSelect');
-    select.innerHTML = '<option value="">Select project/client...</option>';
+    select.innerHTML = `<option value="">${t.selectProject}</option>`;
     clients.forEach(c => {
         select.innerHTML += `<option value="${c.id}">${c.name} ($${c.rate}/hr)</option>`;
     });
@@ -121,32 +743,35 @@ function refreshRecentEntries() {
             <td>${escapeHtml(e.description)}</td>
             <td>${e.duration} hrs</td>
             <td>${e.date}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">Delete</button></td>
+            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${translations[currentLanguage].delete}</button></td>
         </tr>`;
     });
 }
 
 function refreshInvoicesTable() {
+    const t = translations[currentLanguage];
     const tbody = document.getElementById('invoicesBody');
     tbody.innerHTML = '';
     invoices.forEach(inv => {
         const client = clients.find(c => c.id === inv.clientId);
+        const currencySymbol = inv.currency || '$';
         tbody.innerHTML += `<tr>
             <td>${inv.invoiceNumber}</td>
-            <td>${client?.name || 'Unknown'}</td>
-            <td>$${inv.amount.toFixed(2)}</td>
-            <td><span class="badge ${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status}</span></td>
+            <td>${client?.name || inv.clientName || 'Unknown'}</td>
+            <td>${currencySymbol}${inv.amount.toFixed(2)}</td>
+            <td><span class="badge ${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? t.paid : t.unpaid}</span></td>
             <td>${inv.date}</td>
             <td>
-                <button class="btn-secondary" onclick="viewInvoice(${inv.id})">View</button>
+                <button class="btn-secondary" onclick="viewInvoice(${inv.id})">${t.view}</button>
                 <button class="btn-primary" onclick="downloadInvoicePDF(${inv.id})">📄 PDF</button>
-                ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markPaid(${inv.id})">Mark Paid</button>` : ''}
+                ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markPaid(${inv.id})">${t.markPaid}</button>` : ''}
             </td>
         </tr>`;
     });
 }
 
 function refreshClientsTable() {
+    const t = translations[currentLanguage];
     const tbody = document.getElementById('clientsBody');
     tbody.innerHTML = '';
     clients.forEach(c => {
@@ -154,12 +779,13 @@ function refreshClientsTable() {
             <td>${escapeHtml(c.name)}</td>
             <td>${c.email}</td>
             <td>$${c.rate}</td>
-            <td><button class="btn-danger" onclick="deleteClient(${c.id})">Delete</button></td>
+            <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t.delete}</button></td>
         </tr>`;
     });
 }
 
 function refreshAllEntriesTable() {
+    const t = translations[currentLanguage];
     const tbody = document.getElementById('allEntriesBody');
     tbody.innerHTML = '';
     timeEntries.forEach(e => {
@@ -169,8 +795,8 @@ function refreshAllEntriesTable() {
             <td>${escapeHtml(e.description)}</td>
             <td>${e.duration}</td>
             <td>${e.date}</td>
-            <td>${e.invoiced ? '✅ Yes' : '❌ No'}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">Delete</button></td>
+            <td>${e.invoiced ? '✅ ' + t.yes : '❌ ' + t.no}</td>
+            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${t.delete}</button></td>
         </tr>`;
     });
 }
@@ -185,6 +811,7 @@ function escapeHtml(str) {
     });
 }
 
+// Timer functions
 function updateTimerDisplay() {
     const hours = Math.floor(timerSeconds / 3600);
     const minutes = Math.floor((timerSeconds % 3600) / 60);
@@ -193,10 +820,9 @@ function updateTimerDisplay() {
         `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
 }
 
-// Timer functions
 function startTimer() {
     const projectId = document.getElementById('projectSelect').value;
-    if (!projectId) { alert('Select a project first'); return; }
+    if (!projectId) { alert(translations[currentLanguage].selectProject); return; }
     const desc = document.getElementById('taskDescription').value;
     if (!desc) { alert('Enter task description'); return; }
     
@@ -266,7 +892,7 @@ function addClient() {
 }
 
 function deleteClient(id) {
-    if (confirm('Delete this client? This will NOT delete their time entries.')) {
+    if (confirm('Delete this client?')) {
         clients = clients.filter(c => c.id !== id);
         saveAll();
         refreshAll();
@@ -281,7 +907,7 @@ function deleteEntry(id) {
     }
 }
 
-// Invoice functions from time entries
+// Invoice functions
 function openCreateInvoiceModal() {
     const clientSelect = document.getElementById('invoiceClientSelect');
     clientSelect.innerHTML = '<option value="">Select client</option>';
@@ -290,7 +916,7 @@ function openCreateInvoiceModal() {
     });
     
     const checklist = document.getElementById('timeEntriesChecklist');
-    checklist.innerHTML = '<p style="color:#666;">Select a client first</p>';
+    checklist.innerHTML = '<p>Select a client first</p>';
     document.getElementById('invoiceModal').style.display = 'flex';
 }
 
@@ -338,7 +964,8 @@ function generateInvoiceFromTimeEntries() {
         status: 'unpaid',
         date: getTodayDate(),
         entries: selectedEntryIds,
-        notes: document.getElementById('invoiceNotes').value
+        notes: document.getElementById('invoiceNotes').value,
+        currency: '$'
     };
     
     invoices.push(newInvoice);
@@ -347,7 +974,7 @@ function generateInvoiceFromTimeEntries() {
     refreshAll();
     closeInvoiceModal();
     
-    if (confirm(`Invoice ${invoiceNumber} created for $${totalAmount.toFixed(2)}.\n\nDownload PDF now?`)) {
+    if (confirm(`Invoice ${invoiceNumber} created for $${totalAmount.toFixed(2)}. Download PDF now?`)) {
         downloadInvoicePDF(newInvoice.id);
     }
 }
@@ -488,10 +1115,7 @@ async function downloadInvoicePDF(invoiceId) {
     doc.save(`Invoice_${invoice.invoiceNumber}_${client.name.replace(/\s/g, '_')}.pdf`);
 }
 
-// ============================================
-// QUICK INVOICE GENERATOR FUNCTIONS
-// ============================================
-
+// Quick Invoice Functions
 function renderQuickInvoiceItems() {
     const container = document.getElementById('qiItemsContainer');
     container.innerHTML = '';
@@ -551,20 +1175,23 @@ function calculateQuickInvoiceTotal() {
     const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax - discount;
     
-    return { subtotal, tax, discount, total };
+    const currencySelect = document.getElementById('qiCurrency');
+    const currencySymbol = currencySelect?.value || '$';
+    
+    return { subtotal, tax, discount, total, currencySymbol };
 }
 
 function previewQuickInvoice() {
     const clientName = document.getElementById('qiClientName').value;
     if (!clientName) {
-        alert('Please enter client name');
+        alert(translations[currentLanguage].clientName);
         return;
     }
     
-    const currency = document.getElementById('qiCurrency')?.value || '$';
-    const { subtotal, tax, discount, total } = calculateQuickInvoiceTotal();
+    const { subtotal, tax, discount, total, currencySymbol } = calculateQuickInvoiceTotal();
+    const currency = currencySymbol;
     
-    const itemsHtml = quickInvoiceItems.filter(i => i.desc).map(item => `
+    const itemsHtml = quickInvoiceItems.filter(i => i.desc && i.price > 0).map(item => `
         <tr>
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${escapeHtml(item.desc)}</td>
             <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
@@ -619,7 +1246,7 @@ function previewQuickInvoice() {
 async function generateQuickInvoicePDF() {
     const clientName = document.getElementById('qiClientName').value;
     if (!clientName) {
-        alert('Please enter client name');
+        alert(translations[currentLanguage].clientName);
         return;
     }
     
@@ -645,7 +1272,8 @@ async function generateQuickInvoicePDF() {
     const notes = document.getElementById('qiNotes').value;
     const taxRate = parseFloat(document.getElementById('qiTaxRate').value) || 0;
     const discount = parseFloat(document.getElementById('qiDiscount').value) || 0;
-    const currency = document.getElementById('qiCurrency')?.value || '$';
+    const currencySelect = document.getElementById('qiCurrency');
+    const currencySymbol = currencySelect?.value || '$';
     
     const { subtotal, tax, discount: disc, total } = calculateQuickInvoiceTotal();
     
@@ -686,12 +1314,12 @@ async function generateQuickInvoicePDF() {
     
     // Items table
     const tableData = quickInvoiceItems
-        .filter(item => item.desc)
+        .filter(item => item.desc && item.price > 0)
         .map(item => [
             item.desc,
             item.qty.toString(),
-            `${currency}${(item.price || 0).toFixed(2)}`,
-            `${currency}${(item.qty * item.price).toFixed(2)}`
+            `${currencySymbol}${(item.price || 0).toFixed(2)}`,
+            `${currencySymbol}${(item.qty * item.price).toFixed(2)}`
         ]);
     
     let startY = clientAddress ? 125 : 115;
@@ -717,17 +1345,17 @@ async function generateQuickInvoicePDF() {
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('Subtotal:', 140, finalY);
-    doc.text(`${currency}${subtotal.toFixed(2)}`, 175, finalY, { align: 'right' });
+    doc.text(`${currencySymbol}${subtotal.toFixed(2)}`, 175, finalY, { align: 'right' });
     
     let currentY = finalY + 8;
     if (taxRate > 0) {
         doc.text(`Tax (${taxRate}%):`, 140, currentY);
-        doc.text(`${currency}${tax.toFixed(2)}`, 175, currentY, { align: 'right' });
+        doc.text(`${currencySymbol}${tax.toFixed(2)}`, 175, currentY, { align: 'right' });
         currentY += 8;
     }
     if (discount > 0) {
         doc.text('Discount:', 140, currentY);
-        doc.text(`-${currency}${discount.toFixed(2)}`, 175, currentY, { align: 'right' });
+        doc.text(`-${currencySymbol}${discount.toFixed(2)}`, 175, currentY, { align: 'right' });
         currentY += 8;
     }
     
@@ -735,7 +1363,7 @@ async function generateQuickInvoicePDF() {
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'bold');
     doc.text('TOTAL:', 140, currentY);
-    doc.text(`${currency}${total.toFixed(2)}`, 175, currentY, { align: 'right' });
+    doc.text(`${currencySymbol}${total.toFixed(2)}`, 175, currentY, { align: 'right' });
     doc.setFont(undefined, 'normal');
     
     // Notes
@@ -789,10 +1417,10 @@ async function generateQuickInvoicePDF() {
             dueDate: dueDate,
             entries: [],
             notes: notes,
-            items: quickInvoiceItems.filter(i => i.desc),
+            items: quickInvoiceItems.filter(i => i.desc && i.price > 0),
             taxRate: taxRate,
             discount: discount,
-            currency: currency
+            currency: currencySymbol
         };
         invoices.push(newInvoice);
         saveAll();
@@ -878,6 +1506,20 @@ function initQuickInvoice() {
     document.getElementById('qiResetBtn')?.addEventListener('click', resetQuickInvoiceForm);
 }
 
+// Language switcher
+function initLanguageSwitcher() {
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        languageSelect.value = currentLanguage;
+        languageSelect.addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            localStorage.setItem('freelance_language', currentLanguage);
+            updateUILanguage();
+            refreshAll();
+        });
+    }
+}
+
 // Event listeners
 function initEventListeners() {
     document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
@@ -912,6 +1554,7 @@ function init() {
     initTabs();
     initEventListeners();
     initQuickInvoice();
+    initLanguageSwitcher();
 }
 
 // Start the app
