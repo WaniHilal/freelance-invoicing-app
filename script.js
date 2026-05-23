@@ -8,9 +8,25 @@ let timerSeconds = 0;
 let activeTimerProject = null;
 let activeTimerDesc = '';
 let currentLanguage = 'en';
+let quickInvoiceItems = [{ desc: '', qty: 1, price: 0 }];
 
-// Multi-language translations
+// Company info for PDF
+let companyInfo = {
+    name: 'Freelance Pro',
+    email: 'hello@freelancepro.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Business St, Suite 100, New York, NY 10001',
+    bankName: 'Chase Bank',
+    accountName: 'Your Business Name',
+    accountNumber: 'XXXXXXXX1234',
+    routingNumber: 'XXXXXXXX5678',
+    paymentInstructions: 'Payment is due within 30 days. Please include invoice number with your transfer.',
+    taxId: 'XX-1234567'
+};
+
+// Multi-language translations - ALL 8 LANGUAGES
 const translations = {
+    // ENGLISH
     en: {
         appTitle: '💰 Freelance Pro',
         appSubtitle: 'Time tracking + Invoicing for freelancers',
@@ -83,6 +99,8 @@ const translations = {
         paid: 'paid',
         unpaid: 'unpaid'
     },
+    
+    // SPANISH
     es: {
         appTitle: '💰 Freelance Pro',
         appSubtitle: 'Seguimiento de tiempo + Facturación para freelancers',
@@ -155,6 +173,8 @@ const translations = {
         paid: 'pagado',
         unpaid: 'pendiente'
     },
+    
+    // FRENCH
     fr: {
         appTitle: '💰 Freelance Pro',
         appSubtitle: 'Suivi du temps + Facturation pour freelances',
@@ -227,6 +247,8 @@ const translations = {
         paid: 'payé',
         unpaid: 'impayé'
     },
+    
+    // GERMAN
     de: {
         appTitle: '💰 Freelance Pro',
         appSubtitle: 'Zeiterfassung + Rechnungsstellung für Freiberufler',
@@ -299,6 +321,8 @@ const translations = {
         paid: 'bezahlt',
         unpaid: 'offen'
     },
+    
+    // HINDI
     hi: {
         appTitle: '💰 फ्रीलांस प्रो',
         appSubtitle: 'समय ट्रैकिंग + फ्रीलांसरों के लिए इनवॉइसिंग',
@@ -371,6 +395,8 @@ const translations = {
         paid: 'भुगतान किया',
         unpaid: 'बकाया'
     },
+    
+    // ARABIC
     ar: {
         appTitle: '💰 فريلانسر برو',
         appSubtitle: 'تتبع الوقت + إصدار الفواتير للمستقلين',
@@ -443,6 +469,8 @@ const translations = {
         paid: 'مدفوع',
         unpaid: 'غير مدفوع'
     },
+    
+    // CHINESE
     zh: {
         appTitle: '💰 自由职业者专业版',
         appSubtitle: '自由职业者的时间跟踪 + 发票管理',
@@ -515,6 +543,8 @@ const translations = {
         paid: '已付',
         unpaid: '未付'
     },
+    
+    // RUSSIAN
     ru: {
         appTitle: '💰 Фриланс Про',
         appSubtitle: 'Отслеживание времени + Выставление счетов для фрилансеров',
@@ -589,23 +619,6 @@ const translations = {
     }
 };
 
-// Company info for PDF
-let companyInfo = {
-    name: 'Freelance Pro',
-    email: 'hello@freelancepro.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Business St, Suite 100, New York, NY 10001',
-    bankName: 'Chase Bank',
-    accountName: 'Your Business Name',
-    accountNumber: 'XXXXXXXX1234',
-    routingNumber: 'XXXXXXXX5678',
-    paymentInstructions: 'Payment is due within 30 days. Please include invoice number with your transfer.',
-    taxId: 'XX-1234567'
-};
-
-// Quick invoice items
-let quickInvoiceItems = [{ desc: '', qty: 1, price: 0 }];
-
 // Load from localStorage
 function loadData() {
     const savedClients = localStorage.getItem('freelance_clients');
@@ -620,7 +633,6 @@ function loadData() {
     if (savedCompany) companyInfo = JSON.parse(savedCompany);
     if (savedLanguage) currentLanguage = savedLanguage;
     
-    // Add sample data if empty
     if (clients.length === 0) {
         clients = [
             { id: 1, name: 'Acme Corp', email: 'billing@acme.com', rate: 75 },
@@ -655,24 +667,28 @@ function saveAll() {
     localStorage.setItem('freelance_language', currentLanguage);
 }
 
-// Multi-language UI update
 function updateUILanguage() {
     const t = translations[currentLanguage];
     if (!t) return;
     
-    // Update all elements with data-key attribute
+    // Update elements with IDs that match translation keys
+    const elements = ['appTitle', 'appSubtitle', 'totalHoursLabel', 'unpaidAmountLabel', 'paidAmountLabel', 'activeProjectsLabel'];
+    elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && t[id]) el.innerHTML = t[id];
+    });
+    
+    // Update buttons with data-key
     document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         if (t[key]) {
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                if (el.placeholder && t[key]) el.placeholder = t[key];
+                if (el.placeholder) el.placeholder = t[key];
             } else {
-                // Preserve emoji and icons
-                const originalText = el.innerHTML;
-                const hasIcon = originalText.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
-                if (hasIcon) {
-                    const iconMatch = originalText.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
-                    el.innerHTML = iconMatch ? iconMatch[0] + ' ' + t[key] : t[key];
+                const original = el.innerHTML;
+                const emoji = original.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
+                if (emoji) {
+                    el.innerHTML = emoji[0] + ' ' + t[key];
                 } else {
                     el.innerHTML = t[key];
                 }
@@ -680,15 +696,20 @@ function updateUILanguage() {
         }
     });
     
-    // Update title and subtitle
-    document.getElementById('appTitle').innerHTML = t.appTitle;
-    document.getElementById('appSubtitle').innerHTML = t.appSubtitle;
-    
-    // Update select options placeholder
-    const projectSelect = document.getElementById('projectSelect');
-    if (projectSelect && projectSelect.options[0]) {
-        projectSelect.options[0].text = t.selectProject;
-    }
+    // Update tab buttons
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabKeys = ['timerTab', 'quickInvoiceTab', 'invoicesTab', 'clientsTab', 'entriesTab'];
+    tabBtns.forEach((btn, idx) => {
+        if (tabKeys[idx] && t[tabKeys[idx]]) {
+            const original = btn.innerHTML;
+            const emoji = original.match(/[⏱️⚡📄👥📋]/);
+            if (emoji) {
+                btn.innerHTML = emoji[0] + ' ' + t[tabKeys[idx]];
+            } else {
+                btn.innerHTML = t[tabKeys[idx]];
+            }
+        }
+    });
 }
 
 function refreshAll() {
@@ -726,7 +747,8 @@ function refreshStats() {
 function refreshProjectSelect() {
     const t = translations[currentLanguage];
     const select = document.getElementById('projectSelect');
-    select.innerHTML = `<option value="">${t.selectProject}</option>`;
+    if (!select) return;
+    select.innerHTML = `<option value="">${t?.selectProject || 'Select project/client...'}</option>`;
     clients.forEach(c => {
         select.innerHTML += `<option value="${c.id}">${c.name} ($${c.rate}/hr)</option>`;
     });
@@ -734,6 +756,7 @@ function refreshProjectSelect() {
 
 function refreshRecentEntries() {
     const tbody = document.getElementById('recentEntriesBody');
+    if (!tbody) return;
     const recent = [...timeEntries].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
     tbody.innerHTML = '';
     recent.forEach(e => {
@@ -743,7 +766,7 @@ function refreshRecentEntries() {
             <td>${escapeHtml(e.description)}</td>
             <td>${e.duration} hrs</td>
             <td>${e.date}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${translations[currentLanguage].delete}</button></td>
+            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${translations[currentLanguage]?.delete || 'Delete'}</button></td>
         </tr>`;
     });
 }
@@ -751,6 +774,7 @@ function refreshRecentEntries() {
 function refreshInvoicesTable() {
     const t = translations[currentLanguage];
     const tbody = document.getElementById('invoicesBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
     invoices.forEach(inv => {
         const client = clients.find(c => c.id === inv.clientId);
@@ -759,27 +783,28 @@ function refreshInvoicesTable() {
             <td>${inv.invoiceNumber}</td>
             <td>${client?.name || inv.clientName || 'Unknown'}</td>
             <td>${currencySymbol}${inv.amount.toFixed(2)}</td>
-            <td><span class="badge ${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? t.paid : t.unpaid}</span></td>
+            <td><span class="badge ${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? (t?.paid || 'paid') : (t?.unpaid || 'unpaid')}</span></td>
             <td>${inv.date}</td>
             <td>
-                <button class="btn-secondary" onclick="viewInvoice(${inv.id})">${t.view}</button>
+                <button class="btn-secondary" onclick="viewInvoice(${inv.id})">${t?.view || 'View'}</button>
                 <button class="btn-primary" onclick="downloadInvoicePDF(${inv.id})">📄 PDF</button>
-                ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markPaid(${inv.id})">${t.markPaid}</button>` : ''}
+                ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markPaid(${inv.id})">${t?.markPaid || 'Mark Paid'}</button>` : ''}
             </td>
-        </tr>`;
+        </table>`;
     });
 }
 
 function refreshClientsTable() {
     const t = translations[currentLanguage];
     const tbody = document.getElementById('clientsBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
     clients.forEach(c => {
         tbody.innerHTML += `<tr>
             <td>${escapeHtml(c.name)}</td>
             <td>${c.email}</td>
             <td>$${c.rate}</td>
-            <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t.delete}</button></td>
+            <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t?.delete || 'Delete'}</button></td>
         </tr>`;
     });
 }
@@ -787,6 +812,7 @@ function refreshClientsTable() {
 function refreshAllEntriesTable() {
     const t = translations[currentLanguage];
     const tbody = document.getElementById('allEntriesBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
     timeEntries.forEach(e => {
         const client = clients.find(c => c.id === e.clientId);
@@ -795,8 +821,8 @@ function refreshAllEntriesTable() {
             <td>${escapeHtml(e.description)}</td>
             <td>${e.duration}</td>
             <td>${e.date}</td>
-            <td>${e.invoiced ? '✅ ' + t.yes : '❌ ' + t.no}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${t.delete}</button></td>
+            <td>${e.invoiced ? '✅ ' + (t?.yes || 'Yes') : '❌ ' + (t?.no || 'No')}</td>
+            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${t?.delete || 'Delete'}</button></td>
         </tr>`;
     });
 }
@@ -811,7 +837,6 @@ function escapeHtml(str) {
     });
 }
 
-// Timer functions
 function updateTimerDisplay() {
     const hours = Math.floor(timerSeconds / 3600);
     const minutes = Math.floor((timerSeconds % 3600) / 60);
@@ -820,9 +845,10 @@ function updateTimerDisplay() {
         `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
 }
 
+// Timer functions
 function startTimer() {
     const projectId = document.getElementById('projectSelect').value;
-    if (!projectId) { alert(translations[currentLanguage].selectProject); return; }
+    if (!projectId) { alert(translations[currentLanguage]?.selectProject || 'Select a project first'); return; }
     const desc = document.getElementById('taskDescription').value;
     if (!desc) { alert('Enter task description'); return; }
     
@@ -910,13 +936,14 @@ function deleteEntry(id) {
 // Invoice functions
 function openCreateInvoiceModal() {
     const clientSelect = document.getElementById('invoiceClientSelect');
+    if (!clientSelect) return;
     clientSelect.innerHTML = '<option value="">Select client</option>';
     clients.forEach(c => {
         clientSelect.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
     });
     
     const checklist = document.getElementById('timeEntriesChecklist');
-    checklist.innerHTML = '<p>Select a client first</p>';
+    if (checklist) checklist.innerHTML = '<p>Select a client first</p>';
     document.getElementById('invoiceModal').style.display = 'flex';
 }
 
@@ -930,6 +957,7 @@ function loadUnpaidEntries() {
     if (!clientId) return;
     const unpaidEntries = timeEntries.filter(entry => entry.clientId === clientId && !entry.invoiced);
     const checklist = document.getElementById('timeEntriesChecklist');
+    if (!checklist) return;
     if (unpaidEntries.length === 0) {
         checklist.innerHTML = '<p>No unpaid time entries for this client</p>';
         return;
@@ -1025,7 +1053,6 @@ async function downloadInvoicePDF(invoiceId) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // Header
     doc.setFontSize(24);
     doc.setTextColor(41, 128, 185);
     doc.text(companyInfo.name, 20, 25);
@@ -1046,7 +1073,6 @@ async function downloadInvoicePDF(invoiceId) {
     doc.text(`Date: ${invoice.date}`, 140, 55);
     doc.text(`Status: ${invoice.status.toUpperCase()}`, 140, 62);
     
-    // Bill To
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text('Bill To:', 20, 85);
@@ -1056,7 +1082,6 @@ async function downloadInvoicePDF(invoiceId) {
     doc.text(client.name, 20, 95);
     doc.text(client.email, 20, 103);
     
-    // Items table
     const tableData = entries.map(entry => [
         entry.description,
         entry.duration + ' hrs',
@@ -1092,7 +1117,6 @@ async function downloadInvoicePDF(invoiceId) {
         doc.text(splitNotes, 20, finalY + 23);
     }
     
-    // Payment Instructions
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'bold');
@@ -1118,6 +1142,7 @@ async function downloadInvoicePDF(invoiceId) {
 // Quick Invoice Functions
 function renderQuickInvoiceItems() {
     const container = document.getElementById('qiItemsContainer');
+    if (!container) return;
     container.innerHTML = '';
     quickInvoiceItems.forEach((item, index) => {
         const div = document.createElement('div');
@@ -1184,7 +1209,7 @@ function calculateQuickInvoiceTotal() {
 function previewQuickInvoice() {
     const clientName = document.getElementById('qiClientName').value;
     if (!clientName) {
-        alert(translations[currentLanguage].clientName);
+        alert('Please enter client name');
         return;
     }
     
@@ -1227,7 +1252,7 @@ function previewQuickInvoice() {
                     <th style="padding: 8px; text-align: right;">Price</th>
                     <th style="padding: 8px; text-align: right;">Total</th>
                 </tr></thead>
-                <tbody>${itemsHtml || '<tr><td colspan="4" style="text-align:center;">No items added</td></tr>'}</tbody>
+                <tbody>${itemsHtml || '<tr><td colspan="4" style="text-align:center;">No items added</td>'}</tbody>
             </table>
             <div style="margin-top: 20px; text-align: right;">
                 <p>Subtotal: ${currency}${subtotal.toFixed(2)}</p>
@@ -1239,14 +1264,17 @@ function previewQuickInvoice() {
         </div>
     `;
     
-    document.getElementById('qiPreviewContent').innerHTML = previewHtml;
-    document.getElementById('qiPreview').style.display = 'block';
+    const previewDiv = document.getElementById('qiPreviewContent');
+    if (previewDiv) {
+        previewDiv.innerHTML = previewHtml;
+        document.getElementById('qiPreview').style.display = 'block';
+    }
 }
 
 async function generateQuickInvoicePDF() {
     const clientName = document.getElementById('qiClientName').value;
     if (!clientName) {
-        alert(translations[currentLanguage].clientName);
+        alert('Please enter client name');
         return;
     }
     
@@ -1277,7 +1305,6 @@ async function generateQuickInvoicePDF() {
     
     const { subtotal, tax, discount: disc, total } = calculateQuickInvoiceTotal();
     
-    // Header
     doc.setFontSize(24);
     doc.setTextColor(41, 128, 185);
     doc.text(companyInfo.name, 20, 25);
@@ -1298,7 +1325,6 @@ async function generateQuickInvoicePDF() {
     doc.text(`Issue Date: ${issueDate}`, 140, 55);
     if (dueDate) doc.text(`Due Date: ${dueDate}`, 140, 62);
     
-    // Bill To
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text('Bill To:', 20, 85);
@@ -1312,7 +1338,6 @@ async function generateQuickInvoicePDF() {
         doc.text(splitAddress, 20, 111);
     }
     
-    // Items table
     const tableData = quickInvoiceItems
         .filter(item => item.desc && item.price > 0)
         .map(item => [
@@ -1341,7 +1366,6 @@ async function generateQuickInvoicePDF() {
     
     const finalY = doc.lastAutoTable.finalY + 10;
     
-    // Totals
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('Subtotal:', 140, finalY);
@@ -1366,7 +1390,6 @@ async function generateQuickInvoicePDF() {
     doc.text(`${currencySymbol}${total.toFixed(2)}`, 175, currentY, { align: 'right' });
     doc.setFont(undefined, 'normal');
     
-    // Notes
     if (notes) {
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
@@ -1377,7 +1400,6 @@ async function generateQuickInvoicePDF() {
         doc.text(splitNotes, 20, currentY + 23);
     }
     
-    // Payment Instructions
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'bold');
@@ -1393,16 +1415,13 @@ async function generateQuickInvoicePDF() {
     doc.text(companyInfo.paymentInstructions, 20, paymentY + 32);
     doc.text(`Tax ID: ${companyInfo.taxId}`, 20, paymentY + 42);
     
-    // Footer
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text('Thank you for your business!', 20, 280);
     doc.text(`Generated by ${companyInfo.name}`, 20, 288);
     
-    // Save
     doc.save(`${invoiceNumber}_${clientName.replace(/\s/g, '_')}.pdf`);
     
-    // Save to history
     const saveToHistory = confirm('Save this invoice to your history?');
     if (saveToHistory) {
         const newInvoice = {
@@ -1520,6 +1539,35 @@ function initLanguageSwitcher() {
     }
 }
 
+// Toggle Help Section
+function toggleHelp() {
+    const helpContent = document.getElementById('helpContent');
+    const toggleIcon = document.getElementById('helpToggleIcon');
+    
+    if (helpContent.classList.contains('collapsed')) {
+        helpContent.classList.remove('collapsed');
+        toggleIcon.innerHTML = '▼';
+    } else {
+        helpContent.classList.add('collapsed');
+        toggleIcon.innerHTML = '▶';
+    }
+}
+
+// Check if first time visitor
+function checkFirstVisit() {
+    const hasVisited = localStorage.getItem('freelance_has_visited');
+    if (!hasVisited) {
+        localStorage.setItem('freelance_has_visited', 'true');
+    } else {
+        const helpContent = document.getElementById('helpContent');
+        const toggleIcon = document.getElementById('helpToggleIcon');
+        if (helpContent) {
+            helpContent.classList.add('collapsed');
+            toggleIcon.innerHTML = '▶';
+        }
+    }
+}
+
 // Event listeners
 function initEventListeners() {
     document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
@@ -1540,7 +1588,6 @@ function initEventListeners() {
         input.click();
     });
     
-    // Close modals when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             e.target.style.display = 'none';
@@ -1555,6 +1602,7 @@ function init() {
     initEventListeners();
     initQuickInvoice();
     initLanguageSwitcher();
+    checkFirstVisit();
 }
 
 // Start the app

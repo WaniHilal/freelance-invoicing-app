@@ -33,63 +33,173 @@
                 </div>
             </div>
             <div class="header-buttons">
-                <button id="exportDataBtn" class="btn-secondary" data-key="exportData">📤 Export Data</button>
-                <button id="importDataBtn" class="btn-secondary" data-key="importData">📥 Import Data</button>
+                <button id="exportDataBtn" class="btn-secondary">📤 Export Data</button>
+                <button id="importDataBtn" class="btn-secondary">📥 Import Data</button>
+            </div>
+        </div>
+
+        <!-- HELP SECTION - FAQ AND NEED HELP ARE AT THE BOTTOM INSIDE -->
+        <div class="help-section" id="helpSection">
+            <div class="help-header" onclick="toggleHelp()">
+                <span>📖 Getting Started Guide - Complete Instructions</span>
+                <span id="helpToggleIcon">▼</span>
+            </div>
+            <div class="help-content" id="helpContent">
+                
+                <!-- SECTION 1: QUICK START (TOP) -->
+                <div class="help-quickstart">
+                    <h3>🚀 Quick Start - 30 Seconds</h3>
+                    <p>1️⃣ Go to <strong>Quick Invoice</strong> tab → Enter client name → Add item → Generate PDF</p>
+                    <p>2️⃣ OR go to <strong>Time Tracker</strong> tab → Start timer → Stop → Create invoice from tracked hours</p>
+                </div>
+
+                <!-- SECTION 2: GUIDES (MIDDLE) -->
+                <div class="help-grid">
+                    <div class="help-card">
+                        <h4>⏱️ Time Tracker - Complete Guide</h4>
+                        <div class="help-step"><span class="step-num">1</span><span>Go to <strong>👥 Clients</strong> tab → Click <strong>+ Add Client</strong></span></div>
+                        <div class="help-step"><span class="step-num">2</span><span>Enter client name, email, and hourly rate → Click <strong>Save Client</strong></span></div>
+                        <div class="help-step"><span class="step-num">3</span><span>Go to <strong>⏱️ Time Tracker</strong> tab</span></div>
+                        <div class="help-step"><span class="step-num">4</span><span>Select project/client from dropdown</span></div>
+                        <div class="help-step"><span class="step-num">5</span><span>Type what you're working on → Click <strong>▶️ Start</strong></span></div>
+                        <div class="help-step"><span class="step-num">6</span><span>When done → Click <strong>⏸️ Stop</strong> → Time is saved automatically</span></div>
+                        <div class="help-step"><span class="step-num">7</span><span>Go to <strong>📄 Invoices</strong> tab → <strong>Create Invoice from Time Entries</strong></span></div>
+                        <div class="help-step"><span class="step-num">8</span><span>Select client → Check time entries → Generate Invoice → Download PDF</span></div>
+                    </div>
+
+                    <div class="help-card">
+                        <h4>⚡ Quick Invoice - Complete Guide</h4>
+                        <div class="help-step"><span class="step-num">1</span><span>Go to <strong>⚡ Quick Invoice</strong> tab</span></div>
+                        <div class="help-step"><span class="step-num">2</span><span>Fill <strong>Client Details</strong> (Name is required)</span></div>
+                        <div class="help-step"><span class="step-num">3</span><span>Set <strong>Invoice Details</strong> (Number, Issue Date, Due Date)</span></div>
+                        <div class="help-step"><span class="step-num">4</span><span>Add Items: Click <strong>+ Add Item</strong> → Enter description, quantity, price</span></div>
+                        <div class="help-step"><span class="step-num">5</span><span>Select <strong>Currency</strong> from dropdown (12 currencies available)</span></div>
+                        <div class="help-step"><span class="step-num">6</span><span>Add <strong>Tax Rate (%)</strong> or <strong>Discount</strong> if needed</span></div>
+                        <div class="help-step"><span class="step-num">7</span><span>Add <strong>Notes/Payment Terms</strong> (e.g., "Due in 30 days")</span></div>
+                        <div class="help-step"><span class="step-num">8</span><span>Click <strong>👁️ Preview</strong> to review invoice</span></div>
+                        <div class="help-step"><span class="step-num">9</span><span>Click <strong>📄 Generate & Download PDF</strong> → Save or email to client</span></div>
+                        <div class="help-tip-small">💡 <strong>Pro Tip:</strong> Click "Save to history" when prompted to keep invoice in your records!</div>
+                    </div>
+
+                    <div class="help-card">
+                        <h4>🌍 Language & Currency Guide</h4>
+                        <div class="help-step"><span class="step-num">🌐</span><span><strong>Change Language:</strong> Top-right corner dropdown → Select your preferred language</span></div>
+                        <div class="help-step"><span class="step-num">💰</span><span><strong>Available Languages:</strong> English, Español, Français, Deutsch, हिंदी, العربية, 中文, Русский</span></div>
+                        <div class="help-step"><span class="step-num">💱</span><span><strong>Change Currency:</strong> Quick Invoice tab → Additional Information → Currency dropdown</span></div>
+                        <div class="help-step"><span class="step-num">🌎</span><span><strong>Available Currencies:</strong> USD ($), EUR (€), GBP (£), INR (₹), CNY (¥), SAR (﷼), KWD (د.ك), RUB (₽), BDT (৳), JPY (¥), CAD (C$), AUD (A$)</span></div>
+                    </div>
+
+                    <div class="help-card">
+                        <h4>📊 Managing Your Data</h4>
+                        <div class="help-step"><span class="step-num">📄</span><span><strong>View Invoices:</strong> Go to Invoices tab → See all your invoices</span></div>
+                        <div class="help-step"><span class="step-num">⬇️</span><span><strong>Download Invoice PDF:</strong> Click 📄 PDF button next to any invoice</span></div>
+                        <div class="help-step"><span class="step-num">✅</span><span><strong>Mark as Paid:</strong> In Invoices tab → Click "Mark Paid" when client pays</span></div>
+                        <div class="help-step"><span class="step-num">📤</span><span><strong>Export Backup:</strong> Click 📤 Export Data button in header → Saves all your data</span></div>
+                        <div class="help-step"><span class="step-num">📥</span><span><strong>Import Backup:</strong> Click 📥 Import Data button → Select your backup file</span></div>
+                        <div class="help-step"><span class="step-num">🗑️</span><span><strong>Delete Items:</strong> Click red Delete button next to any client, time entry, or invoice</span></div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: FAQ - AT THE BOTTOM OF HELP SECTION -->
+                <div class="help-faq">
+                    <h4>❓ Frequently Asked Questions</h4>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 Is my data safe?</div>
+                        <div class="faq-answer">✅ Yes! All data is stored locally in your browser. We never see or store your data on any server. Use the Export button to create backups of your data.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 Can I use this on my phone?</div>
+                        <div class="faq-answer">✅ Yes! The app is fully responsive and works on mobile phones, tablets, and computers. The layout automatically adjusts to your screen size.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 Do I need an account?</div>
+                        <div class="faq-answer">✅ No! You can use the app immediately without signing up. All data saves automatically to your browser's local storage.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 What if I clear my browser cache?</div>
+                        <div class="faq-answer">⚠️ Your data will be lost! Always use the Export button to backup your data regularly. You can then Import the backup file to restore your data.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 Can I change currency for existing invoices?</div>
+                        <div class="faq-answer">✅ Currency is set when creating the invoice. Existing invoices keep their original currency. Create a new invoice for different currencies.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 How do I add multiple items to one invoice?</div>
+                        <div class="faq-answer">✅ Click "+ Add Item" button in the Quick Invoice tab as many times as needed. Each item appears as a separate row in the invoice.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">🔹 Is there a limit on how many invoices I can create?</div>
+                        <div class="faq-answer">✅ No! You can create unlimited invoices, clients, and time entries. All data is stored locally in your browser.</div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: NEED HELP - AT THE BOTTOM OF HELP SECTION -->
+                <div class="help-support">
+                    <div class="help-tip">
+                        💡 <strong>Need Help? Try these steps first:</strong>
+                        <br>• Refresh the page (Ctrl + F5 for hard refresh)
+                        <br>• Check if you filled all required fields (marked with *)
+                        <br>• Export your data as backup before making major changes
+                        <br>• Clear your browser cache if the app is behaving strangely
+                        <br>• Contact support: <strong>hello@freelancepro.com</strong>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <!-- Stats Dashboard -->
         <div class="stats-grid" id="statsContainer">
             <div class="stat-card">
-                <h3 data-key="totalHoursLabel">Total Hours (This Month)</h3>
+                <h3 id="totalHoursLabel">Total Hours (This Month)</h3>
                 <div class="value" id="totalHours">0</div>
             </div>
             <div class="stat-card">
-                <h3 data-key="unpaidAmountLabel">Unpaid Amount</h3>
+                <h3 id="unpaidAmountLabel">Unpaid Amount</h3>
                 <div class="value" id="unpaidAmount">$0</div>
             </div>
             <div class="stat-card">
-                <h3 data-key="paidAmountLabel">Paid Amount</h3>
+                <h3 id="paidAmountLabel">Paid Amount</h3>
                 <div class="value" id="paidAmount">$0</div>
             </div>
             <div class="stat-card">
-                <h3 data-key="activeProjectsLabel">Active Projects</h3>
+                <h3 id="activeProjectsLabel">Active Projects</h3>
                 <div class="value" id="activeProjects">0</div>
             </div>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="timer" data-key="timerTab">⏱️ Time Tracker</button>
-            <button class="tab-btn" data-tab="quickinvoice" data-key="quickInvoiceTab">⚡ Quick Invoice</button>
-            <button class="tab-btn" data-tab="invoices" data-key="invoicesTab">📄 Invoices</button>
-            <button class="tab-btn" data-tab="clients" data-key="clientsTab">👥 Clients</button>
-            <button class="tab-btn" data-tab="entries" data-key="entriesTab">📋 Time Entries</button>
+            <button class="tab-btn active" data-tab="timer">⏱️ Time Tracker</button>
+            <button class="tab-btn" data-tab="quickinvoice">⚡ Quick Invoice</button>
+            <button class="tab-btn" data-tab="invoices">📄 Invoices</button>
+            <button class="tab-btn" data-tab="clients">👥 Clients</button>
+            <button class="tab-btn" data-tab="entries">📋 Time Entries</button>
         </div>
 
         <!-- TIME TRACKER PANEL -->
         <div id="timer" class="panel active-panel">
             <div class="timer-section">
-                <h3 data-key="activeTimer">⏱️ Active Timer</h3>
+                <h3>⏱️ Active Timer</h3>
                 <div class="timer-display" id="timerDisplay">00:00:00</div>
                 <div class="form-group">
                     <select id="projectSelect">
-                        <option value="" data-key="selectProject">Select project/client...</option>
+                        <option value="">Select project/client...</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <input type="text" id="taskDescription" placeholder="What are you working on?">
                 </div>
                 <div class="timer-buttons">
-                    <button class="timer-btn" id="startTimerBtn" data-key="start">▶️ Start</button>
-                    <button class="timer-btn" id="stopTimerBtn" disabled data-key="stop">⏸️ Stop</button>
+                    <button class="timer-btn" id="startTimerBtn">▶️ Start</button>
+                    <button class="timer-btn" id="stopTimerBtn" disabled>⏸️ Stop</button>
                 </div>
             </div>
-            <h3 data-key="recentEntries">Recent Time Entries</h3>
+            <h3>Recent Time Entries</h3>
             <div class="table-responsive">
                 <table id="recentEntriesTable">
                     <thead>
-                        <tr><th data-key="project">Project</th><th data-key="description">Description</th><th data-key="duration">Duration</th><th data-key="date">Date</th><th data-key="action">Action</th></tr>
+                        <tr><th>Project</th><th>Description</th><th>Duration</th><th>Date</th><th>Action</th></tr>
                     </thead>
                     <tbody id="recentEntriesBody"></tbody>
                 </table>
@@ -99,63 +209,59 @@
         <!-- QUICK INVOICE PANEL -->
         <div id="quickinvoice" class="panel">
             <div class="quick-invoice-header">
-                <h3 data-key="quickInvoiceTitle">⚡ Create Invoice in Seconds</h3>
-                <p data-key="quickInvoiceDesc">No time tracking needed. Just add items and generate PDF.</p>
+                <h3>⚡ Create Invoice in Seconds</h3>
+                <p>No time tracking needed. Just add items and generate PDF.</p>
             </div>
             
-            <!-- Client Information -->
             <div class="form-section">
-                <h4 data-key="clientDetails">Client Details</h4>
+                <h4>Client Details</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label data-key="clientName">Client Name *</label>
+                        <label>Client Name *</label>
                         <input type="text" id="qiClientName" placeholder="John Doe or Company Name">
                     </div>
                     <div class="form-group flex-1">
-                        <label data-key="clientEmail">Client Email</label>
+                        <label>Client Email</label>
                         <input type="email" id="qiClientEmail" placeholder="client@example.com">
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label data-key="clientAddress">Client Address (Optional)</label>
+                        <label>Client Address (Optional)</label>
                         <input type="text" id="qiClientAddress" placeholder="Street, City, Country">
                     </div>
                 </div>
             </div>
 
-            <!-- Invoice Details -->
             <div class="form-section">
-                <h4 data-key="invoiceDetails">Invoice Details</h4>
+                <h4>Invoice Details</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label data-key="invoiceNumber">Invoice Number</label>
+                        <label>Invoice Number</label>
                         <input type="text" id="qiInvoiceNumber" placeholder="INV-001">
                     </div>
                     <div class="form-group flex-1">
-                        <label data-key="issueDate">Issue Date</label>
+                        <label>Issue Date</label>
                         <input type="date" id="qiIssueDate">
                     </div>
                     <div class="form-group flex-1">
-                        <label data-key="dueDate">Due Date</label>
+                        <label>Due Date</label>
                         <input type="date" id="qiDueDate">
                     </div>
                 </div>
             </div>
 
-            <!-- Line Items -->
             <div class="form-section">
-                <h4 data-key="itemsServices">Items / Services</h4>
+                <h4>Items / Services</h4>
                 <div id="qiItemsContainer"></div>
-                <button id="qiAddItemBtn" class="btn-secondary" style="margin-top: 10px;" data-key="addItem">+ Add Item</button>
+                <button id="qiAddItemBtn" class="btn-secondary" style="margin-top: 10px;">+ Add Item</button>
             </div>
 
-            <!-- Additional Info -->
             <div class="form-section">
-                <h4 data-key="additionalInfo">Additional Information</h4>
+                <h4>Additional Information</h4>
                 <div class="row">
                     <div class="form-group flex-1">
-                        <label data-key="currency">Currency</label>
+                        <label>Currency</label>
                         <select id="qiCurrency">
                             <option value="$">USD ($) - US Dollar</option>
                             <option value="€">EUR (€) - Euro</option>
@@ -172,41 +278,39 @@
                         </select>
                     </div>
                     <div class="form-group flex-1">
-                        <label data-key="taxRate">Tax Rate (%)</label>
+                        <label>Tax Rate (%)</label>
                         <input type="number" id="qiTaxRate" placeholder="0" value="0">
                     </div>
                     <div class="form-group flex-1">
-                        <label data-key="discount">Discount</label>
+                        <label>Discount</label>
                         <input type="number" id="qiDiscount" placeholder="0" value="0">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label data-key="notes">Notes / Payment Terms</label>
+                    <label>Notes / Payment Terms</label>
                     <textarea id="qiNotes" rows="3" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="quick-invoice-actions">
-                <button id="qiPreviewBtn" class="btn-primary" data-key="preview">👁️ Preview</button>
-                <button id="qiGeneratePDFBtn" class="btn-primary" style="background: #00d25b;" data-key="generatePDF">📄 Generate & Download PDF</button>
-                <button id="qiResetBtn" class="btn-secondary" data-key="reset">⟳ Reset Form</button>
+                <button id="qiPreviewBtn" class="btn-primary">👁️ Preview</button>
+                <button id="qiGeneratePDFBtn" class="btn-primary" style="background: #00d25b;">📄 Generate & Download PDF</button>
+                <button id="qiResetBtn" class="btn-secondary">⟳ Reset Form</button>
             </div>
 
-            <!-- Live Preview -->
             <div class="invoice-preview" id="qiPreview" style="display: none;">
-                <h4 data-key="invoicePreview">📄 Invoice Preview</h4>
+                <h4>📄 Invoice Preview</h4>
                 <div id="qiPreviewContent" style="background: #f8f9fa; padding: 20px; border-radius: 16px; font-size: 0.85rem;"></div>
             </div>
         </div>
 
         <!-- INVOICES PANEL -->
         <div id="invoices" class="panel">
-            <button class="btn-primary" id="createInvoiceBtn" data-key="createInvoice">+ Create Invoice from Time Entries</button>
+            <button class="btn-primary" id="createInvoiceBtn">+ Create Invoice from Time Entries</button>
             <div class="table-responsive">
                 <table id="invoicesTable">
                     <thead>
-                        <tr><th data-key="invoiceNum">Invoice #</th><th data-key="client">Client</th><th data-key="amount">Amount</th><th data-key="status">Status</th><th data-key="date">Date</th><th data-key="actions">Actions</th></tr>
+                        <tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
                     </thead>
                     <tbody id="invoicesBody"></tbody>
                 </table>
@@ -215,11 +319,11 @@
 
         <!-- CLIENTS PANEL -->
         <div id="clients" class="panel">
-            <button class="btn-primary" id="addClientBtn" data-key="addClient">+ Add Client</button>
+            <button class="btn-primary" id="addClientBtn">+ Add Client</button>
             <div class="table-responsive">
                 <table id="clientsTable">
                     <thead>
-                        <tr><th data-key="clientName">Name</th><th data-key="clientEmail">Email</th><th data-key="hourlyRate">Hourly Rate</th><th data-key="actions">Actions</th></tr>
+                        <tr><th>Name</th><th>Email</th><th>Hourly Rate</th><th>Actions</th></tr>
                     </thead>
                     <tbody id="clientsBody"></tbody>
                 </table>
@@ -228,58 +332,65 @@
 
         <!-- TIME ENTRIES PANEL -->
         <div id="entries" class="panel">
-            <h3 data-key="allTimeEntries">All Time Entries</h3>
+            <h3>All Time Entries</h3>
             <div class="table-responsive">
                 <table id="allEntriesTable">
                     <thead>
-                        <tr><th data-key="project">Project</th><th data-key="description">Description</th><th data-key="durationHours">Duration (hours)</th><th data-key="date">Date</th><th data-key="invoiced">Invoiced</th><th data-key="action">Action</th></tr>
+                        <tr><th>Project</th><th>Description</th><th>Duration (hours)</th><th>Date</th><th>Invoiced</th><th>Action</th></tr>
                     </thead>
                     <tbody id="allEntriesBody"></tbody>
                 </table>
             </div>
         </div>
+
+        <!-- VIDEO TUTORIAL - AT THE VERY BOTTOM OF THE APP -->
+        <div class="video-tutorial-section">
+            <div class="video-tutorial-container">
+                <h3>🎥 Video Tutorial Coming Soon!</h3>
+                <p>Step-by-step video guide will be available here.</p>
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin-top: 30px; padding: 20px; font-size: 0.75rem; color: #888;">
+            © 2025 Freelance Pro | Data stored locally in your browser
+        </footer>
     </div>
 
-    <!-- INVOICE MODAL -->
+    <!-- MODALS -->
     <div id="invoiceModal" class="modal">
         <div class="modal-content">
-            <h2 data-key="createInvoiceTitle">Create Invoice from Time Entries</h2>
+            <h2>Create Invoice from Time Entries</h2>
             <div class="form-group">
-                <label data-key="selectClient">Select Client</label>
+                <label>Select Client</label>
                 <select id="invoiceClientSelect"></select>
             </div>
             <div class="form-group">
-                <label data-key="selectEntries">Select Time Entries</label>
+                <label>Select Time Entries</label>
                 <div id="timeEntriesChecklist"></div>
             </div>
             <div class="form-group">
-                <label data-key="additionalNotes">Additional Notes</label>
+                <label>Additional Notes</label>
                 <textarea id="invoiceNotes" rows="3" placeholder="Payment terms, thanks, etc."></textarea>
             </div>
             <div class="modal-buttons">
-                <button class="btn-primary" id="generateInvoiceBtn" data-key="generateInvoice">Generate Invoice</button>
-                <button class="btn-secondary" id="closeInvoiceModalBtn" data-key="cancel">Cancel</button>
+                <button class="btn-primary" id="generateInvoiceBtn">Generate Invoice</button>
+                <button class="btn-secondary" id="closeInvoiceModalBtn">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- CLIENT MODAL -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
-            <h2 data-key="addClientTitle">Add Client</h2>
-            <div class="form-group"><label data-key="clientName">Name</label><input id="clientName" placeholder="Client name"></div>
-            <div class="form-group"><label data-key="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
-            <div class="form-group"><label data-key="hourlyRate">Hourly Rate</label><input id="clientRate" type="number" placeholder="50"></div>
+            <h2>Add Client</h2>
+            <div class="form-group"><label>Name</label><input id="clientName" placeholder="Client name"></div>
+            <div class="form-group"><label>Email</label><input id="clientEmail" placeholder="email@example.com"></div>
+            <div class="form-group"><label>Hourly Rate ($)</label><input id="clientRate" type="number" placeholder="50"></div>
             <div class="modal-buttons">
-                <button class="btn-primary" id="saveClientBtn" data-key="save">Save Client</button>
-                <button class="btn-secondary" id="closeClientModalBtn" data-key="cancel">Cancel</button>
+                <button class="btn-primary" id="saveClientBtn">Save Client</button>
+                <button class="btn-secondary" id="closeClientModalBtn">Cancel</button>
             </div>
         </div>
     </div>
-
-    <footer style="text-align: center; margin-top: 30px; padding: 20px; font-size: 0.75rem; color: #888;">
-        © 2025 Freelance Pro | Data stored locally in your browser
-    </footer>
 
     <script src="script.js"></script>
 </body>
