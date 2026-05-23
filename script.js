@@ -1553,18 +1553,20 @@ function toggleHelp() {
     }
 }
 
-// Check if first time visitor
+// Check if first time visitor - START COLLAPSED FOR EVERYONE
 function checkFirstVisit() {
-    const hasVisited = localStorage.getItem('freelance_has_visited');
-    if (!hasVisited) {
+    const helpContent = document.getElementById('helpContent');
+    const toggleIcon = document.getElementById('helpToggleIcon');
+    
+    // Always start collapsed (closed)
+    if (helpContent) {
+        helpContent.classList.add('collapsed');
+        toggleIcon.innerHTML = '▶';
+    }
+    
+    // Mark that user has visited (no auto-expand)
+    if (!localStorage.getItem('freelance_has_visited')) {
         localStorage.setItem('freelance_has_visited', 'true');
-    } else {
-        const helpContent = document.getElementById('helpContent');
-        const toggleIcon = document.getElementById('helpToggleIcon');
-        if (helpContent) {
-            helpContent.classList.add('collapsed');
-            toggleIcon.innerHTML = '▶';
-        }
     }
 }
 
