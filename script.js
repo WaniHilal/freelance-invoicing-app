@@ -1,830 +1,162 @@
-// Data storage
+
+// ============================================
+// FREELANCE PRO - COMPLETE JAVASCRIPT
+// ============================================
+
+// ============================================
+// DATA STORAGE
+// ============================================
 let clients = [];
 let timeEntries = [];
 let invoices = [];
-let timerInterval = null;
-let timerRunning = false;
-let timerSeconds = 0;
-let activeTimerProject = null;
-let activeTimerDesc = '';
 let currentLanguage = 'en';
-let quickInvoiceItems = [{ desc: '', qty: 1, price: 0 }];
+let timerInterval = null;
+let timerActive = false;
+let timerSeconds = 0;
+let activeTimerClientId = null;
+let activeTimerTaskDesc = '';
+let invoiceItems = [{ desc: '', qty: 1, price: 0 }];
 
-// Company info for PDF
-let companyInfo = {
+// ============================================
+// COMPANY INFO FOR PDF
+// ============================================
+const companyInfo = {
     name: 'Freelance Pro',
-    email: 'hello@freelancepro.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Business St, Suite 100, New York, NY 10001',
-    bankName: 'Chase Bank',
-    accountName: 'Your Business Name',
-    accountNumber: 'XXXXXXXX1234',
-    routingNumber: 'XXXXXXXX5678',
-    paymentInstructions: 'Payment is due within 30 days. Please include invoice number with your transfer.',
-    taxId: 'XX-1234567'
+    email: '',
+    phone: '',
+    address: '',
+    bankName: '',
+    accountNumber: '',
+    paymentInstructions: ''
 };
 
-// Multi-language translations - ALL 8 LANGUAGES
+// ============================================
+// CURRENCY MAPPING FOR PDF
+// ============================================
+const currencyMap = {
+    '$': '$', '€': '€', '£': '£', '₹': 'Rs.', '¥': 'Yen',
+    '﷼': 'SAR', 'د.ك': 'KWD', '₽': 'RUB', '৳': 'BDT', 'C$': 'CAD', 'A$': 'AUD'
+};
+
+function getPdfCurrency(original) {
+    return currencyMap[original] || original;
+}
+
+// ============================================
+// COMPLETE TRANSLATIONS (8 LANGUAGES)
+// ============================================
 const translations = {
-    // ENGLISH
     en: {
         appTitle: '💰 Freelance Pro',
-        appSubtitle: 'Time tracking + Invoicing for freelancers',
+        appSubtitle: 'Complete Invoicing + Time Tracking for Freelancers',
+        gettingStarted: '📖 Getting Started Guide - Complete Instructions',
         exportData: '📤 Export Data',
         importData: '📥 Import Data',
-        totalHoursLabel: 'Total Hours (This Month)',
-        unpaidAmountLabel: 'Unpaid Amount',
-        paidAmountLabel: 'Paid Amount',
-        activeProjectsLabel: 'Active Projects',
-        timerTab: '⏱️ Time Tracker',
-        quickInvoiceTab: '⚡ Quick Invoice',
-        invoicesTab: '📄 Invoices',
-        clientsTab: '👥 Clients',
-        entriesTab: '📋 Time Entries',
-        activeTimer: '⏱️ Active Timer',
-        selectProject: 'Select project/client...',
-        start: '▶️ Start',
-        stop: '⏸️ Stop',
-        recentEntries: 'Recent Time Entries',
-        project: 'Project',
-        description: 'Description',
-        duration: 'Duration',
-        date: 'Date',
-        action: 'Action',
-        quickInvoiceTitle: '⚡ Create Invoice in Seconds',
-        quickInvoiceDesc: 'No time tracking needed. Just add items and generate PDF.',
-        clientDetails: 'Client Details',
-        clientName: 'Client Name *',
-        clientEmail: 'Client Email',
-        clientAddress: 'Client Address (Optional)',
-        invoiceDetails: 'Invoice Details',
-        invoiceNumber: 'Invoice Number',
-        issueDate: 'Issue Date',
-        dueDate: 'Due Date',
-        itemsServices: 'Items / Services',
-        addItem: '+ Add Item',
-        additionalInfo: 'Additional Information',
-        currency: 'Currency',
-        taxRate: 'Tax Rate (%)',
-        discount: 'Discount',
-        notes: 'Notes / Payment Terms',
-        preview: '👁️ Preview',
-        generatePDF: '📄 Generate & Download PDF',
-        reset: '⟳ Reset Form',
-        invoicePreview: '📄 Invoice Preview',
-        createInvoice: '+ Create Invoice from Time Entries',
-        invoiceNum: 'Invoice #',
-        client: 'Client',
-        amount: 'Amount',
-        status: 'Status',
-        actions: 'Actions',
-        addClient: '+ Add Client',
-        hourlyRate: 'Hourly Rate',
-        allTimeEntries: 'All Time Entries',
-        durationHours: 'Duration (hours)',
-        invoiced: 'Invoiced',
-        createInvoiceTitle: 'Create Invoice from Time Entries',
-        selectClient: 'Select Client',
-        selectEntries: 'Select Time Entries',
-        additionalNotes: 'Additional Notes',
-        generateInvoice: 'Generate Invoice',
-        cancel: 'Cancel',
-        addClientTitle: 'Add Client',
-        save: 'Save Client',
-        yes: 'Yes',
-        no: 'No',
-        delete: 'Delete',
-        view: 'View',
-        markPaid: 'Mark Paid',
-        paid: 'paid',
-        unpaid: 'unpaid'
+        clearData: '🗑️ Clear All Data',
+        delete: 'Delete', view: 'View', markPaid: 'Mark Paid', paid: 'paid', unpaid: 'unpaid',
+        pdf: 'PDF', save: 'Save', cancel: 'Cancel', addClient: '+ Add New Client',
+        clientName: 'Client Name', email: 'Email', hourlyRate: 'Hourly Rate',
+        invoiceNo: 'Invoice #', client: 'Client', amount: 'Amount', status: 'Status', date: 'Date', actions: 'Actions',
+        totalHours: 'Total Hours', unpaidAmount: 'Unpaid Amount', paidAmount: 'Paid Amount', activeProjects: 'Active Projects'
     },
-    
-    // SPANISH
     es: {
         appTitle: '💰 Freelance Pro',
-        appSubtitle: 'Seguimiento de tiempo + Facturación para freelancers',
+        appSubtitle: 'Facturación completa + Seguimiento de tiempo para freelancers',
+        gettingStarted: '📖 Guía de inicio - Instrucciones completas',
         exportData: '📤 Exportar Datos',
         importData: '📥 Importar Datos',
-        totalHoursLabel: 'Horas Totales (Este Mes)',
-        unpaidAmountLabel: 'Monto Pendiente',
-        paidAmountLabel: 'Monto Pagado',
-        activeProjectsLabel: 'Proyectos Activos',
-        timerTab: '⏱️ Temporizador',
-        quickInvoiceTab: '⚡ Factura Rápida',
-        invoicesTab: '📄 Facturas',
-        clientsTab: '👥 Clientes',
-        entriesTab: '📋 Registros',
-        activeTimer: '⏱️ Temporizador Activo',
-        selectProject: 'Seleccionar proyecto/cliente...',
-        start: '▶️ Iniciar',
-        stop: '⏸️ Detener',
-        recentEntries: 'Registros Recientes',
-        project: 'Proyecto',
-        description: 'Descripción',
-        duration: 'Duración',
-        date: 'Fecha',
-        action: 'Acción',
-        quickInvoiceTitle: '⚡ Crea Factura en Segundos',
-        quickInvoiceDesc: 'No necesitas seguimiento de tiempo. Solo agrega items y genera PDF.',
-        clientDetails: 'Detalles del Cliente',
-        clientName: 'Nombre del Cliente *',
-        clientEmail: 'Correo del Cliente',
-        clientAddress: 'Dirección del Cliente (Opcional)',
-        invoiceDetails: 'Detalles de Factura',
-        invoiceNumber: 'Número de Factura',
-        issueDate: 'Fecha de Emisión',
-        dueDate: 'Fecha de Vencimiento',
-        itemsServices: 'Items / Servicios',
-        addItem: '+ Agregar Item',
-        additionalInfo: 'Información Adicional',
-        currency: 'Moneda',
-        taxRate: 'Tasa de Impuesto (%)',
-        discount: 'Descuento',
-        notes: 'Notas / Términos de Pago',
-        preview: '👁️ Vista Previa',
-        generatePDF: '📄 Generar y Descargar PDF',
-        reset: '⟳ Reiniciar Formulario',
-        invoicePreview: '📄 Vista Previa de Factura',
-        createInvoice: '+ Crear Factura desde Registros',
-        invoiceNum: 'Factura #',
-        client: 'Cliente',
-        amount: 'Monto',
-        status: 'Estado',
-        actions: 'Acciones',
-        addClient: '+ Agregar Cliente',
-        hourlyRate: 'Tarifa por Hora',
-        allTimeEntries: 'Todos los Registros',
-        durationHours: 'Duración (horas)',
-        invoiced: 'Facturado',
-        createInvoiceTitle: 'Crear Factura desde Registros',
-        selectClient: 'Seleccionar Cliente',
-        selectEntries: 'Seleccionar Registros',
-        additionalNotes: 'Notas Adicionales',
-        generateInvoice: 'Generar Factura',
-        cancel: 'Cancelar',
-        addClientTitle: 'Agregar Cliente',
-        save: 'Guardar Cliente',
-        yes: 'Sí',
-        no: 'No',
-        delete: 'Eliminar',
-        view: 'Ver',
-        markPaid: 'Marcar Pagado',
-        paid: 'pagado',
-        unpaid: 'pendiente'
+        clearData: '🗑️ Borrar Todos los Datos',
+        delete: 'Eliminar', view: 'Ver', markPaid: 'Marcar Pagado', paid: 'pagado', unpaid: 'pendiente',
+        pdf: 'PDF', save: 'Guardar', cancel: 'Cancelar', addClient: '+ Agregar Cliente',
+        clientName: 'Nombre del Cliente', email: 'Correo', hourlyRate: 'Tarifa por Hora',
+        invoiceNo: 'Factura #', client: 'Cliente', amount: 'Monto', status: 'Estado', date: 'Fecha', actions: 'Acciones',
+        totalHours: 'Horas Totales', unpaidAmount: 'Monto Pendiente', paidAmount: 'Monto Pagado', activeProjects: 'Proyectos Activos'
     },
-    
-    // FRENCH
     fr: {
         appTitle: '💰 Freelance Pro',
-        appSubtitle: 'Suivi du temps + Facturation pour freelances',
+        appSubtitle: 'Facturation complète + Suivi du temps pour freelances',
+        gettingStarted: '📖 Guide de démarrage - Instructions complètes',
         exportData: '📤 Exporter les données',
         importData: '📥 Importer les données',
-        totalHoursLabel: 'Heures totales (ce mois)',
-        unpaidAmountLabel: 'Montant impayé',
-        paidAmountLabel: 'Montant payé',
-        activeProjectsLabel: 'Projets actifs',
-        timerTab: '⏱️ Chronomètre',
-        quickInvoiceTab: '⚡ Facture rapide',
-        invoicesTab: '📄 Factures',
-        clientsTab: '👥 Clients',
-        entriesTab: '📋 Entrées',
-        activeTimer: '⏱️ Chronomètre actif',
-        selectProject: 'Sélectionner un projet/client...',
-        start: '▶️ Démarrer',
-        stop: '⏸️ Arrêter',
-        recentEntries: 'Entrées récentes',
-        project: 'Projet',
-        description: 'Description',
-        duration: 'Durée',
-        date: 'Date',
-        action: 'Action',
-        quickInvoiceTitle: '⚡ Créer une facture en quelques secondes',
-        quickInvoiceDesc: "Pas de suivi du temps nécessaire. Ajoutez des articles et générez un PDF.",
-        clientDetails: 'Coordonnées du client',
-        clientName: 'Nom du client *',
-        clientEmail: 'Email du client',
-        clientAddress: 'Adresse du client (optionnel)',
-        invoiceDetails: 'Détails de la facture',
-        invoiceNumber: 'Numéro de facture',
-        issueDate: "Date d'émission",
-        dueDate: 'Date déchéance',
-        itemsServices: 'Articles / Services',
-        addItem: "+ Ajouter un article",
-        additionalInfo: 'Informations complémentaires',
-        currency: 'Devise',
-        taxRate: "Taux d'imposition (%)",
-        discount: 'Remise',
-        notes: 'Notes / Conditions de paiement',
-        preview: '👁️ Aperçu',
-        generatePDF: '📄 Générer et télécharger le PDF',
-        reset: '⟳ Réinitialiser',
-        invoicePreview: '📄 Aperçu de la facture',
-        createInvoice: '+ Créer une facture à partir des entrées',
-        invoiceNum: 'Facture #',
-        client: 'Client',
-        amount: 'Montant',
-        status: 'Statut',
-        actions: 'Actions',
-        addClient: '+ Ajouter un client',
-        hourlyRate: 'Tarif horaire',
-        allTimeEntries: 'Toutes les entrées',
-        durationHours: 'Durée (heures)',
-        invoiced: 'Facturé',
-        createInvoiceTitle: 'Créer une facture à partir des entrées',
-        selectClient: 'Sélectionner un client',
-        selectEntries: 'Sélectionner les entrées',
-        additionalNotes: 'Notes supplémentaires',
-        generateInvoice: 'Générer la facture',
-        cancel: 'Annuler',
-        addClientTitle: 'Ajouter un client',
-        save: 'Enregistrer',
-        yes: 'Oui',
-        no: 'Non',
-        delete: 'Supprimer',
-        view: 'Voir',
-        markPaid: 'Marquer comme payé',
-        paid: 'payé',
-        unpaid: 'impayé'
+        clearData: '🗑️ Effacer Toutes les Données',
+        delete: 'Supprimer', view: 'Voir', markPaid: 'Marquer payé', paid: 'payé', unpaid: 'impayé',
+        pdf: 'PDF', save: 'Enregistrer', cancel: 'Annuler', addClient: '+ Ajouter un client',
+        clientName: 'Nom du client', email: 'Email', hourlyRate: 'Tarif horaire',
+        invoiceNo: 'Facture #', client: 'Client', amount: 'Montant', status: 'Statut', date: 'Date', actions: 'Actions',
+        totalHours: 'Heures totales', unpaidAmount: 'Montant impayé', paidAmount: 'Montant payé', activeProjects: 'Projets actifs'
     },
-    
-    // GERMAN
     de: {
         appTitle: '💰 Freelance Pro',
-        appSubtitle: 'Zeiterfassung + Rechnungsstellung für Freiberufler',
+        appSubtitle: 'Vollständige Rechnungsstellung + Zeiterfassung für Freiberufler',
+        gettingStarted: '📖 Erste Schritte - Vollständige Anleitung',
         exportData: '📤 Daten exportieren',
         importData: '📥 Daten importieren',
-        totalHoursLabel: 'Gesamtstunden (diesen Monat)',
-        unpaidAmountLabel: 'Offener Betrag',
-        paidAmountLabel: 'Bezahlter Betrag',
-        activeProjectsLabel: 'Aktive Projekte',
-        timerTab: '⏱️ Zeiterfassung',
-        quickInvoiceTab: '⚡ Schnellrechnung',
-        invoicesTab: '📄 Rechnungen',
-        clientsTab: '👥 Kunden',
-        entriesTab: '📋 Einträge',
-        activeTimer: '⏱️ Aktiver Timer',
-        selectProject: 'Projekt/Kunde auswählen...',
-        start: '▶️ Start',
-        stop: '⏸️ Stopp',
-        recentEntries: 'Letzte Einträge',
-        project: 'Projekt',
-        description: 'Beschreibung',
-        duration: 'Dauer',
-        date: 'Datum',
-        action: 'Aktion',
-        quickInvoiceTitle: '⚡ Rechnung in Sekunden erstellen',
-        quickInvoiceDesc: 'Keine Zeiterfassung nötig. Einfach Positionen hinzufügen und PDF generieren.',
-        clientDetails: 'Kundendetails',
-        clientName: 'Kundenname *',
-        clientEmail: 'Kunden-E-Mail',
-        clientAddress: 'Kundenadresse (optional)',
-        invoiceDetails: 'Rechnungsdetails',
-        invoiceNumber: 'Rechnungsnummer',
-        issueDate: 'Ausstellungsdatum',
-        dueDate: 'Fälligkeitsdatum',
-        itemsServices: 'Positionen / Dienstleistungen',
-        addItem: '+ Position hinzufügen',
-        additionalInfo: 'Zusätzliche Informationen',
-        currency: 'Währung',
-        taxRate: 'Steuersatz (%)',
-        discount: 'Rabatt',
-        notes: 'Notizen / Zahlungsbedingungen',
-        preview: '👁️ Vorschau',
-        generatePDF: '📄 PDF generieren & herunterladen',
-        reset: '⟳ Formular zurücksetzen',
-        invoicePreview: '📄 Rechnungsvorschau',
-        createInvoice: '+ Rechnung aus Zeiteinträgen erstellen',
-        invoiceNum: 'Rechnung #',
-        client: 'Kunde',
-        amount: 'Betrag',
-        status: 'Status',
-        actions: 'Aktionen',
-        addClient: '+ Kunde hinzufügen',
-        hourlyRate: 'Stundensatz',
-        allTimeEntries: 'Alle Zeiteinträge',
-        durationHours: 'Dauer (Stunden)',
-        invoiced: 'Abgerechnet',
-        createInvoiceTitle: 'Rechnung aus Zeiteinträgen erstellen',
-        selectClient: 'Kunde auswählen',
-        selectEntries: 'Zeiteinträge auswählen',
-        additionalNotes: 'Zusätzliche Notizen',
-        generateInvoice: 'Rechnung erstellen',
-        cancel: 'Abbrechen',
-        addClientTitle: 'Kunde hinzufügen',
-        save: 'Speichern',
-        yes: 'Ja',
-        no: 'Nein',
-        delete: 'Löschen',
-        view: 'Ansehen',
-        markPaid: 'Als bezahlt markieren',
-        paid: 'bezahlt',
-        unpaid: 'offen'
+        clearData: '🗑️ Alle Daten Löschen',
+        delete: 'Löschen', view: 'Ansehen', markPaid: 'Als bezahlt markieren', paid: 'bezahlt', unpaid: 'offen',
+        pdf: 'PDF', save: 'Speichern', cancel: 'Abbrechen', addClient: '+ Kunde hinzufügen',
+        clientName: 'Kundenname', email: 'E-Mail', hourlyRate: 'Stundensatz',
+        invoiceNo: 'Rechnung #', client: 'Kunde', amount: 'Betrag', status: 'Status', date: 'Datum', actions: 'Aktionen',
+        totalHours: 'Gesamtstunden', unpaidAmount: 'Offener Betrag', paidAmount: 'Bezahlter Betrag', activeProjects: 'Aktive Projekte'
     },
-    
-    // HINDI
     hi: {
         appTitle: '💰 फ्रीलांस प्रो',
-        appSubtitle: 'समय ट्रैकिंग + फ्रीलांसरों के लिए इनवॉइसिंग',
+        appSubtitle: 'फ्रीलांसरों के लिए संपूर्ण इनवॉइसिंग + समय ट्रैकिंग',
+        gettingStarted: '📖 शुरू करने की मार्गदर्शिका - पूर्ण निर्देश',
         exportData: '📤 डेटा निर्यात करें',
         importData: '📥 डेटा आयात करें',
-        totalHoursLabel: 'कुल घंटे (इस महीने)',
-        unpaidAmountLabel: 'बकाया राशि',
-        paidAmountLabel: 'भुगतान राशि',
-        activeProjectsLabel: 'सक्रिय परियोजनाएं',
-        timerTab: '⏱️ टाइमर',
-        quickInvoiceTab: '⚡ त्वरित इनवॉइस',
-        invoicesTab: '📄 इनवॉइस',
-        clientsTab: '👥 ग्राहक',
-        entriesTab: '📋 प्रविष्टियाँ',
-        activeTimer: '⏱️ सक्रिय टाइमर',
-        selectProject: 'परियोजना/ग्राहक चुनें...',
-        start: '▶️ शुरू करें',
-        stop: '⏸️ रोकें',
-        recentEntries: 'हाल की प्रविष्टियाँ',
-        project: 'परियोजना',
-        description: 'विवरण',
-        duration: 'अवधि',
-        date: 'तारीख',
-        action: 'कार्रवाई',
-        quickInvoiceTitle: '⚡ सेकंडों में इनवॉइस बनाएं',
-        quickInvoiceDesc: 'समय ट्रैकिंग की आवश्यकता नहीं। आइटम जोड़ें और पीडीएफ बनाएं।',
-        clientDetails: 'ग्राहक विवरण',
-        clientName: 'ग्राहक का नाम *',
-        clientEmail: 'ग्राहक ईमेल',
-        clientAddress: 'ग्राहक पता (वैकल्पिक)',
-        invoiceDetails: 'इनवॉइस विवरण',
-        invoiceNumber: 'इनवॉइस संख्या',
-        issueDate: 'जारी करने की तारीख',
-        dueDate: 'भुगतान तिथि',
-        itemsServices: 'आइटम / सेवाएं',
-        addItem: '+ आइटम जोड़ें',
-        additionalInfo: 'अतिरिक्त जानकारी',
-        currency: 'मुद्रा',
-        taxRate: 'कर दर (%)',
-        discount: 'छूट',
-        notes: 'नोट्स / भुगतान शर्तें',
-        preview: '👁️ पूर्वावलोकन',
-        generatePDF: '📄 पीडीएफ बनाएं और डाउनलोड करें',
-        reset: '⟳ फॉर्म रीसेट करें',
-        invoicePreview: '📄 इनवॉइस पूर्वावलोकन',
-        createInvoice: '+ समय प्रविष्टियों से इनवॉइस बनाएं',
-        invoiceNum: 'इनवॉइस #',
-        client: 'ग्राहक',
-        amount: 'राशि',
-        status: 'स्थिति',
-        actions: 'कार्रवाई',
-        addClient: '+ ग्राहक जोड़ें',
-        hourlyRate: 'प्रति घंटा दर',
-        allTimeEntries: 'सभी समय प्रविष्टियाँ',
-        durationHours: 'अवधि (घंटे)',
-        invoiced: 'बिल भेजा गया',
-        createInvoiceTitle: 'समय प्रविष्टियों से इनवॉइस बनाएं',
-        selectClient: 'ग्राहक चुनें',
-        selectEntries: 'समय प्रविष्टियाँ चुनें',
-        additionalNotes: 'अतिरिक्त नोट्स',
-        generateInvoice: 'इनवॉइस बनाएं',
-        cancel: 'रद्द करें',
-        addClientTitle: 'ग्राहक जोड़ें',
-        save: 'सहेजें',
-        yes: 'हाँ',
-        no: 'नहीं',
-        delete: 'हटाएं',
-        view: 'देखें',
-        markPaid: 'भुगतान चिह्नित करें',
-        paid: 'भुगतान किया',
-        unpaid: 'बकाया'
+        clearData: '🗑️ सभी डेटा हटाएं',
+        delete: 'हटाएं', view: 'देखें', markPaid: 'भुगतान चिह्नित करें', paid: 'भुगतान किया', unpaid: 'बकाया',
+        pdf: 'पीडीएफ', save: 'सहेजें', cancel: 'रद्द करें', addClient: '+ नया ग्राहक जोड़ें',
+        clientName: 'ग्राहक का नाम', email: 'ईमेल', hourlyRate: 'प्रति घंटा दर',
+        invoiceNo: 'चालान #', client: 'ग्राहक', amount: 'राशि', status: 'स्थिति', date: 'तारीख', actions: 'कार्रवाई',
+        totalHours: 'कुल घंटे', unpaidAmount: 'बकाया राशि', paidAmount: 'भुगतान राशि', activeProjects: 'सक्रिय परियोजनाएं'
     },
-    
-    // ARABIC
     ar: {
         appTitle: '💰 فريلانسر برو',
-        appSubtitle: 'تتبع الوقت + إصدار الفواتير للمستقلين',
+        appSubtitle: 'إصدار فواتير كامل + تتبع الوقت للمستقلين',
+        gettingStarted: '📖 دليل البدء - تعليمات كاملة',
         exportData: '📤 تصدير البيانات',
         importData: '📥 استيراد البيانات',
-        totalHoursLabel: 'إجمالي الساعات (هذا الشهر)',
-        unpaidAmountLabel: 'المبلغ غير المدفوع',
-        paidAmountLabel: 'المبلغ المدفوع',
-        activeProjectsLabel: 'المشاريع النشطة',
-        timerTab: '⏱️ المؤقت',
-        quickInvoiceTab: '⚡ فاتورة سريعة',
-        invoicesTab: '📄 الفواتير',
-        clientsTab: '👥 العملاء',
-        entriesTab: '📋 الإدخالات',
-        activeTimer: '⏱️ المؤقت النشط',
-        selectProject: 'اختر مشروع/عميل...',
-        start: '▶️ بدء',
-        stop: '⏸️ إيقاف',
-        recentEntries: 'الإدخالات الأخيرة',
-        project: 'المشروع',
-        description: 'الوصف',
-        duration: 'المدة',
-        date: 'التاريخ',
-        action: 'إجراء',
-        quickInvoiceTitle: '⚡ إنشاء فاتورة في ثوانٍ',
-        quickInvoiceDesc: 'لا حاجة لتتبع الوقت. فقط أضف العناصر وأنشئ PDF.',
-        clientDetails: 'تفاصيل العميل',
-        clientName: 'اسم العميل *',
-        clientEmail: 'بريد العميل الإلكتروني',
-        clientAddress: 'عنوان العميل (اختياري)',
-        invoiceDetails: 'تفاصيل الفاتورة',
-        invoiceNumber: 'رقم الفاتورة',
-        issueDate: 'تاريخ الإصدار',
-        dueDate: 'تاريخ الاستحقاق',
-        itemsServices: 'العناصر / الخدمات',
-        addItem: '+ إضافة عنصر',
-        additionalInfo: 'معلومات إضافية',
-        currency: 'العملة',
-        taxRate: 'نسبة الضريبة (%)',
-        discount: 'الخصم',
-        notes: 'ملاحظات / شروط الدفع',
-        preview: '👁️ معاينة',
-        generatePDF: '📄 إنشاء وتحميل PDF',
-        reset: '⟳ إعادة تعيين النموذج',
-        invoicePreview: '📄 معاينة الفاتورة',
-        createInvoice: '+ إنشاء فاتورة من إدخالات الوقت',
-        invoiceNum: 'الفاتورة #',
-        client: 'العميل',
-        amount: 'المبلغ',
-        status: 'الحالة',
-        actions: 'الإجراءات',
-        addClient: '+ إضافة عميل',
-        hourlyRate: 'السعر بالساعة',
-        allTimeEntries: 'جميع إدخالات الوقت',
-        durationHours: 'المدة (ساعات)',
-        invoiced: 'تم الفوترة',
-        createInvoiceTitle: 'إنشاء فاتورة من إدخالات الوقت',
-        selectClient: 'اختر العميل',
-        selectEntries: 'اختر إدخالات الوقت',
-        additionalNotes: 'ملاحظات إضافية',
-        generateInvoice: 'إنشاء الفاتورة',
-        cancel: 'إلغاء',
-        addClientTitle: 'إضافة عميل',
-        save: 'حفظ',
-        yes: 'نعم',
-        no: 'لا',
-        delete: 'حذف',
-        view: 'عرض',
-        markPaid: 'تحديد كمدفوع',
-        paid: 'مدفوع',
-        unpaid: 'غير مدفوع'
+        clearData: '🗑️ حذف جميع البيانات',
+        delete: 'حذف', view: 'عرض', markPaid: 'تحديد كمدفوع', paid: 'مدفوع', unpaid: 'غير مدفوع',
+        pdf: 'PDF', save: 'حفظ', cancel: 'إلغاء', addClient: '+ إضافة عميل جديد',
+        clientName: 'اسم العميل', email: 'البريد الإلكتروني', hourlyRate: 'السعر بالساعة',
+        invoiceNo: 'الفاتورة #', client: 'العميل', amount: 'المبلغ', status: 'الحالة', date: 'التاريخ', actions: 'الإجراءات',
+        totalHours: 'إجمالي الساعات', unpaidAmount: 'المبلغ غير المدفوع', paidAmount: 'المبلغ المدفوع', activeProjects: 'المشاريع النشطة'
     },
-    
-    // CHINESE
     zh: {
         appTitle: '💰 自由职业者专业版',
-        appSubtitle: '自由职业者的时间跟踪 + 发票管理',
+        appSubtitle: '自由职业者的完整发票管理 + 时间跟踪',
+        gettingStarted: '📖 入门指南 - 完整说明',
         exportData: '📤 导出数据',
         importData: '📥 导入数据',
-        totalHoursLabel: '总小时数（本月）',
-        unpaidAmountLabel: '未付金额',
-        paidAmountLabel: '已付金额',
-        activeProjectsLabel: '活跃项目',
-        timerTab: '⏱️ 计时器',
-        quickInvoiceTab: '⚡ 快速发票',
-        invoicesTab: '📄 发票',
-        clientsTab: '👥 客户',
-        entriesTab: '📋 记录',
-        activeTimer: '⏱️ 活跃计时器',
-        selectProject: '选择项目/客户...',
-        start: '▶️ 开始',
-        stop: '⏸️ 停止',
-        recentEntries: '最近记录',
-        project: '项目',
-        description: '描述',
-        duration: '时长',
-        date: '日期',
-        action: '操作',
-        quickInvoiceTitle: '⚡ 秒速创建发票',
-        quickInvoiceDesc: '无需时间跟踪。只需添加项目并生成PDF。',
-        clientDetails: '客户详情',
-        clientName: '客户名称 *',
-        clientEmail: '客户邮箱',
-        clientAddress: '客户地址（可选）',
-        invoiceDetails: '发票详情',
-        invoiceNumber: '发票号码',
-        issueDate: '签发日期',
-        dueDate: '到期日期',
-        itemsServices: '项目/服务',
-        addItem: '+ 添加项目',
-        additionalInfo: '附加信息',
-        currency: '货币',
-        taxRate: '税率 (%)',
-        discount: '折扣',
-        notes: '备注 / 付款条款',
-        preview: '👁️ 预览',
-        generatePDF: '📄 生成并下载PDF',
-        reset: '⟳ 重置表单',
-        invoicePreview: '📄 发票预览',
-        createInvoice: '+ 从时间记录创建发票',
-        invoiceNum: '发票 #',
-        client: '客户',
-        amount: '金额',
-        status: '状态',
-        actions: '操作',
-        addClient: '+ 添加客户',
-        hourlyRate: '时薪',
-        allTimeEntries: '所有时间记录',
-        durationHours: '时长（小时）',
-        invoiced: '已开票',
-        createInvoiceTitle: '从时间记录创建发票',
-        selectClient: '选择客户',
-        selectEntries: '选择时间记录',
-        additionalNotes: '附加备注',
-        generateInvoice: '生成发票',
-        cancel: '取消',
-        addClientTitle: '添加客户',
-        save: '保存',
-        yes: '是',
-        no: '否',
-        delete: '删除',
-        view: '查看',
-        markPaid: '标记为已付',
-        paid: '已付',
-        unpaid: '未付'
+        clearData: '🗑️ 清除所有数据',
+        delete: '删除', view: '查看', markPaid: '标记为已付', paid: '已付', unpaid: '未付',
+        pdf: 'PDF', save: '保存', cancel: '取消', addClient: '+ 添加新客户',
+        clientName: '客户名称', email: '电子邮箱', hourlyRate: '时薪',
+        invoiceNo: '发票 #', client: '客户', amount: '金额', status: '状态', date: '日期', actions: '操作',
+        totalHours: '总小时数', unpaidAmount: '未付金额', paidAmount: '已付金额', activeProjects: '活跃项目'
     },
-    
-    // RUSSIAN
     ru: {
         appTitle: '💰 Фриланс Про',
-        appSubtitle: 'Отслеживание времени + Выставление счетов для фрилансеров',
+        appSubtitle: 'Полное выставление счетов + отслеживание времени для фрилансеров',
+        gettingStarted: '📖 Руководство по началу работы - Полные инструкции',
         exportData: '📤 Экспорт данных',
         importData: '📥 Импорт данных',
-        totalHoursLabel: 'Всего часов (за месяц)',
-        unpaidAmountLabel: 'Неоплаченная сумма',
-        paidAmountLabel: 'Оплаченная сумма',
-        activeProjectsLabel: 'Активные проекты',
-        timerTab: '⏱️ Таймер',
-        quickInvoiceTab: '⚡ Быстрый счет',
-        invoicesTab: '📄 Счета',
-        clientsTab: '👥 Клиенты',
-        entriesTab: '📋 Записи',
-        activeTimer: '⏱️ Активный таймер',
-        selectProject: 'Выберите проект/клиента...',
-        start: '▶️ Старт',
-        stop: '⏸️ Стоп',
-        recentEntries: 'Последние записи',
-        project: 'Проект',
-        description: 'Описание',
-        duration: 'Длительность',
-        date: 'Дата',
-        action: 'Действие',
-        quickInvoiceTitle: '⚡ Создать счет за секунды',
-        quickInvoiceDesc: 'Отслеживание времени не требуется. Просто добавьте позиции и создайте PDF.',
-        clientDetails: 'Данные клиента',
-        clientName: 'Имя клиента *',
-        clientEmail: 'Email клиента',
-        clientAddress: 'Адрес клиента (опционально)',
-        invoiceDetails: 'Детали счета',
-        invoiceNumber: 'Номер счета',
-        issueDate: 'Дата выставления',
-        dueDate: 'Срок оплаты',
-        itemsServices: 'Позиции / Услуги',
-        addItem: '+ Добавить позицию',
-        additionalInfo: 'Дополнительная информация',
-        currency: 'Валюта',
-        taxRate: 'Налоговая ставка (%)',
-        discount: 'Скидка',
-        notes: 'Примечания / Условия оплаты',
-        preview: '👁️ Предпросмотр',
-        generatePDF: '📄 Создать и скачать PDF',
-        reset: '⟳ Сбросить форму',
-        invoicePreview: '📄 Предпросмотр счета',
-        createInvoice: '+ Создать счет из записей времени',
-        invoiceNum: 'Счет #',
-        client: 'Клиент',
-        amount: 'Сумма',
-        status: 'Статус',
-        actions: 'Действия',
-        addClient: '+ Добавить клиента',
-        hourlyRate: 'Почасовая ставка',
-        allTimeEntries: 'Все записи времени',
-        durationHours: 'Длительность (часы)',
-        invoiced: 'Выставлен счет',
-        createInvoiceTitle: 'Создать счет из записей времени',
-        selectClient: 'Выберите клиента',
-        selectEntries: 'Выберите записи времени',
-        additionalNotes: 'Дополнительные примечания',
-        generateInvoice: 'Создать счет',
-        cancel: 'Отмена',
-        addClientTitle: 'Добавить клиента',
-        save: 'Сохранить',
-        yes: 'Да',
-        no: 'Нет',
-        delete: 'Удалить',
-        view: 'Просмотр',
-        markPaid: 'Отметить как оплаченный',
-        paid: 'оплачен',
-        unpaid: 'не оплачен'
+        clearData: '🗑️ Удалить все данные',
+        delete: 'Удалить', view: 'Просмотр', markPaid: 'Отметить как оплаченный', paid: 'оплачен', unpaid: 'не оплачен',
+        pdf: 'PDF', save: 'Сохранить', cancel: 'Отмена', addClient: '+ Добавить клиента',
+        clientName: 'Имя клиента', email: 'Email', hourlyRate: 'Почасовая ставка',
+        invoiceNo: 'Счет #', client: 'Клиент', amount: 'Сумма', status: 'Статус', date: 'Дата', actions: 'Действия',
+        totalHours: 'Всего часов', unpaidAmount: 'Неоплаченная сумма', paidAmount: 'Оплаченная сумма', activeProjects: 'Активные проекты'
     }
 };
 
-// Load from localStorage
-function loadData() {
-    const savedClients = localStorage.getItem('freelance_clients');
-    const savedEntries = localStorage.getItem('freelance_entries');
-    const savedInvoices = localStorage.getItem('freelance_invoices');
-    const savedCompany = localStorage.getItem('freelance_company');
-    const savedLanguage = localStorage.getItem('freelance_language');
-    
-    if (savedClients) clients = JSON.parse(savedClients);
-    if (savedEntries) timeEntries = JSON.parse(savedEntries);
-    if (savedInvoices) invoices = JSON.parse(savedInvoices);
-    if (savedCompany) companyInfo = JSON.parse(savedCompany);
-    if (savedLanguage) currentLanguage = savedLanguage;
-    
-    if (clients.length === 0) {
-        clients = [
-            { id: 1, name: 'Acme Corp', email: 'billing@acme.com', rate: 75 },
-            { id: 2, name: 'TechStart Inc', email: 'finance@techstart.com', rate: 85 }
-        ];
-    }
-    if (timeEntries.length === 0) {
-        timeEntries = [
-            { id: 1, clientId: 1, description: 'Website redesign', duration: 4.5, date: getTodayDate(), invoiced: false },
-            { id: 2, clientId: 2, description: 'API integration', duration: 3, date: getTodayDate(), invoiced: false }
-        ];
-    }
-    if (invoices.length === 0) {
-        invoices = [
-            { id: 1, invoiceNumber: 'INV-001', clientId: 1, amount: 337.5, status: 'paid', date: getTodayDate(), entries: [1], notes: 'Thanks for your business!', currency: '$' }
-        ];
-    }
-    saveAll();
-    refreshAll();
-    updateUILanguage();
-}
-
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
 function getTodayDate() {
     return new Date().toISOString().split('T')[0];
-}
-
-function saveAll() {
-    localStorage.setItem('freelance_clients', JSON.stringify(clients));
-    localStorage.setItem('freelance_entries', JSON.stringify(timeEntries));
-    localStorage.setItem('freelance_invoices', JSON.stringify(invoices));
-    localStorage.setItem('freelance_company', JSON.stringify(companyInfo));
-    localStorage.setItem('freelance_language', currentLanguage);
-}
-
-function updateUILanguage() {
-    const t = translations[currentLanguage];
-    if (!t) return;
-    
-    // Update elements with IDs that match translation keys
-    const elements = ['appTitle', 'appSubtitle', 'totalHoursLabel', 'unpaidAmountLabel', 'paidAmountLabel', 'activeProjectsLabel'];
-    elements.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && t[id]) el.innerHTML = t[id];
-    });
-    
-    // Update buttons with data-key
-    document.querySelectorAll('[data-key]').forEach(el => {
-        const key = el.getAttribute('data-key');
-        if (t[key]) {
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                if (el.placeholder) el.placeholder = t[key];
-            } else {
-                const original = el.innerHTML;
-                const emoji = original.match(/[📄👁️⟳💰⏱️⚡👥📋▶️⏸️➕]/);
-                if (emoji) {
-                    el.innerHTML = emoji[0] + ' ' + t[key];
-                } else {
-                    el.innerHTML = t[key];
-                }
-            }
-        }
-    });
-    
-    // Update tab buttons
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabKeys = ['timerTab', 'quickInvoiceTab', 'invoicesTab', 'clientsTab', 'entriesTab'];
-    tabBtns.forEach((btn, idx) => {
-        if (tabKeys[idx] && t[tabKeys[idx]]) {
-            const original = btn.innerHTML;
-            const emoji = original.match(/[⏱️⚡📄👥📋]/);
-            if (emoji) {
-                btn.innerHTML = emoji[0] + ' ' + t[tabKeys[idx]];
-            } else {
-                btn.innerHTML = t[tabKeys[idx]];
-            }
-        }
-    });
-}
-
-function refreshAll() {
-    refreshStats();
-    refreshProjectSelect();
-    refreshRecentEntries();
-    refreshInvoicesTable();
-    refreshClientsTable();
-    refreshAllEntriesTable();
-    updateUILanguage();
-}
-
-function refreshStats() {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    const monthEntries = timeEntries.filter(e => {
-        const d = new Date(e.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-    const totalHours = monthEntries.reduce((sum, e) => sum + e.duration, 0);
-    
-    const unpaidTotal = invoices.filter(i => i.status === 'unpaid').reduce((sum, i) => sum + i.amount, 0);
-    const paidTotal = invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
-    
-    const activeProjects = new Set(timeEntries.map(e => e.clientId)).size;
-    
-    document.getElementById('totalHours').innerText = totalHours.toFixed(1);
-    document.getElementById('unpaidAmount').innerText = '$' + unpaidTotal.toFixed(2);
-    document.getElementById('paidAmount').innerText = '$' + paidTotal.toFixed(2);
-    document.getElementById('activeProjects').innerText = activeProjects;
-}
-
-function refreshProjectSelect() {
-    const t = translations[currentLanguage];
-    const select = document.getElementById('projectSelect');
-    if (!select) return;
-    select.innerHTML = `<option value="">${t?.selectProject || 'Select project/client...'}</option>`;
-    clients.forEach(c => {
-        select.innerHTML += `<option value="${c.id}">${c.name} ($${c.rate}/hr)</option>`;
-    });
-}
-
-function refreshRecentEntries() {
-    const tbody = document.getElementById('recentEntriesBody');
-    if (!tbody) return;
-    const recent = [...timeEntries].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
-    tbody.innerHTML = '';
-    recent.forEach(e => {
-        const client = clients.find(c => c.id === e.clientId);
-        tbody.innerHTML += `<tr>
-            <td>${client?.name || 'Unknown'}</td>
-            <td>${escapeHtml(e.description)}</td>
-            <td>${e.duration} hrs</td>
-            <td>${e.date}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${translations[currentLanguage]?.delete || 'Delete'}</button></td>
-        </tr>`;
-    });
-}
-
-function refreshInvoicesTable() {
-    const t = translations[currentLanguage];
-    const tbody = document.getElementById('invoicesBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    invoices.forEach(inv => {
-        const client = clients.find(c => c.id === inv.clientId);
-        const currencySymbol = inv.currency || '$';
-        tbody.innerHTML += `<tr>
-            <td>${inv.invoiceNumber}</td>
-            <td>${client?.name || inv.clientName || 'Unknown'}</td>
-            <td>${currencySymbol}${inv.amount.toFixed(2)}</td>
-            <td><span class="badge ${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? (t?.paid || 'paid') : (t?.unpaid || 'unpaid')}</span></td>
-            <td>${inv.date}</td>
-            <td>
-                <button class="btn-secondary" onclick="viewInvoice(${inv.id})">${t?.view || 'View'}</button>
-                <button class="btn-primary" onclick="downloadInvoicePDF(${inv.id})">📄 PDF</button>
-                ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markPaid(${inv.id})">${t?.markPaid || 'Mark Paid'}</button>` : ''}
-            </td>
-        </table>`;
-    });
-}
-
-function refreshClientsTable() {
-    const t = translations[currentLanguage];
-    const tbody = document.getElementById('clientsBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    clients.forEach(c => {
-        tbody.innerHTML += `<tr>
-            <td>${escapeHtml(c.name)}</td>
-            <td>${c.email}</td>
-            <td>$${c.rate}</td>
-            <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t?.delete || 'Delete'}</button></td>
-        </tr>`;
-    });
-}
-
-function refreshAllEntriesTable() {
-    const t = translations[currentLanguage];
-    const tbody = document.getElementById('allEntriesBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    timeEntries.forEach(e => {
-        const client = clients.find(c => c.id === e.clientId);
-        tbody.innerHTML += `<tr>
-            <td>${client?.name || 'Unknown'}</td>
-            <td>${escapeHtml(e.description)}</td>
-            <td>${e.duration}</td>
-            <td>${e.date}</td>
-            <td>${e.invoiced ? '✅ ' + (t?.yes || 'Yes') : '❌ ' + (t?.no || 'No')}</td>
-            <td><button class="btn-danger" onclick="deleteEntry(${e.id})">${t?.delete || 'Delete'}</button></td>
-        </tr>`;
-    });
 }
 
 function escapeHtml(str) {
@@ -837,82 +169,431 @@ function escapeHtml(str) {
     });
 }
 
-function updateTimerDisplay() {
-    const hours = Math.floor(timerSeconds / 3600);
-    const minutes = Math.floor((timerSeconds % 3600) / 60);
-    const seconds = timerSeconds % 60;
-    document.getElementById('timerDisplay').innerHTML = 
-        `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+function saveData() {
+    localStorage.setItem('freelance_clients', JSON.stringify(clients));
+    localStorage.setItem('freelance_timeEntries', JSON.stringify(timeEntries));
+    localStorage.setItem('freelance_invoices', JSON.stringify(invoices));
+    localStorage.setItem('freelance_language', currentLanguage);
 }
 
-// Timer functions
-function startTimer() {
-    const projectId = document.getElementById('projectSelect').value;
-    if (!projectId) { alert(translations[currentLanguage]?.selectProject || 'Select a project first'); return; }
-    const desc = document.getElementById('taskDescription').value;
-    if (!desc) { alert('Enter task description'); return; }
+function loadData() {
+    const savedClients = localStorage.getItem('freelance_clients');
+    const savedEntries = localStorage.getItem('freelance_timeEntries');
+    const savedInvoices = localStorage.getItem('freelance_invoices');
+    const savedLanguage = localStorage.getItem('freelance_language');
     
-    activeTimerProject = parseInt(projectId);
-    activeTimerDesc = desc;
-    timerRunning = true;
+    if (savedClients) clients = JSON.parse(savedClients);
+    if (savedEntries) timeEntries = JSON.parse(savedEntries);
+    if (savedInvoices) invoices = JSON.parse(savedInvoices);
+    if (savedLanguage) currentLanguage = savedLanguage;
+    
+    // New users get empty data (no sample data)
+    if (!savedClients) clients = [];
+    if (!savedEntries) timeEntries = [];
+    if (!savedInvoices) invoices = [];
+    
+    saveData();
+    refreshAll();
+}
+
+// ============================================
+// UI LANGUAGE UPDATE
+// ============================================
+function updateUILanguage() {
+    const t = translations[currentLanguage];
+    if (!t) return;
+    
+    // Header
+    const appTitle = document.getElementById('appTitle');
+    if (appTitle) appTitle.innerHTML = t.appTitle;
+    
+    const appSubtitle = document.getElementById('appSubtitle');
+    if (appSubtitle) appSubtitle.innerHTML = t.appSubtitle;
+    
+    const gettingStarted = document.getElementById('gettingStartedTitle');
+    if (gettingStarted) gettingStarted.innerHTML = t.gettingStarted;
+    
+    // Buttons
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) exportBtn.innerHTML = t.exportData;
+    
+    const importBtn = document.getElementById('importBtn');
+    if (importBtn) importBtn.innerHTML = t.importData;
+    
+    const clearBtn = document.getElementById('clearDataBtn');
+    if (clearBtn) clearBtn.innerHTML = t.clearData;
+    
+    const addClientBtn = document.getElementById('addClientBtn');
+    if (addClientBtn) addClientBtn.innerHTML = t.addClient;
+    
+    // Stats cards
+    const statCards = document.querySelectorAll('.stat-card h3');
+    if (statCards.length >= 4) {
+        statCards[0].innerText = t.totalHours;
+        statCards[1].innerText = t.unpaidAmount;
+        statCards[2].innerText = t.paidAmount;
+        statCards[3].innerText = t.activeProjects;
+    }
+    
+    // Modal
+    const modalTitle = document.querySelector('#clientModal h2');
+    if (modalTitle) modalTitle.innerHTML = t.addClient;
+    
+    const modalLabels = document.querySelectorAll('#clientModal .form-group label');
+    if (modalLabels.length >= 3) {
+        modalLabels[0].innerText = t.clientName;
+        modalLabels[1].innerText = t.email;
+        modalLabels[2].innerText = t.hourlyRate;
+    }
+    
+    const saveBtn = document.getElementById('saveClientModalBtn');
+    if (saveBtn) saveBtn.innerHTML = t.save;
+    
+    const cancelBtn = document.getElementById('closeModalBtn');
+    if (cancelBtn) cancelBtn.innerHTML = t.cancel;
+    
+    // Table headers
+    const invoiceHeaders = document.querySelectorAll('#tab4 .data-table th');
+    if (invoiceHeaders.length >= 6) {
+        invoiceHeaders[0].innerText = t.invoiceNo;
+        invoiceHeaders[1].innerText = t.client;
+        invoiceHeaders[2].innerText = t.amount;
+        invoiceHeaders[3].innerText = t.status;
+        invoiceHeaders[4].innerText = t.date;
+        invoiceHeaders[5].innerText = t.actions;
+    }
+    
+    const clientHeaders = document.querySelectorAll('#tab5 .data-table th');
+    if (clientHeaders.length >= 4) {
+        clientHeaders[0].innerText = t.clientName;
+        clientHeaders[1].innerText = t.email;
+        clientHeaders[2].innerText = t.hourlyRate;
+        clientHeaders[3].innerText = t.actions;
+    }
+}
+
+// ============================================
+// REFRESH FUNCTIONS
+// ============================================
+function refreshAll() {
+    refreshStats();
+    refreshClientSelects();
+    refreshRecentEntries();
+    refreshInvoicesTable();
+    refreshClientsTable();
+    refreshAllEntriesTable();
+    refreshUnpaidEntriesList();
+    updateUILanguage();
+}
+
+function refreshStats() {
+    const now = new Date();
+    const monthEntries = timeEntries.filter(e => {
+        const d = new Date(e.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    const totalHours = monthEntries.reduce((s, e) => s + e.duration, 0);
+    const unpaidTotal = invoices.filter(i => i.status === 'unpaid').reduce((s, i) => s + i.amount, 0);
+    const paidTotal = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + i.amount, 0);
+    const activeProjects = new Set(timeEntries.map(e => e.clientId)).size;
+    
+    document.getElementById('totalHours').innerText = totalHours.toFixed(1);
+    document.getElementById('unpaidAmount').innerText = '$' + unpaidTotal.toFixed(2);
+    document.getElementById('paidAmount').innerText = '$' + paidTotal.toFixed(2);
+    document.getElementById('activeProjects').innerText = activeProjects;
+}
+
+function refreshClientSelects() {
+    const timerSelect = document.getElementById('timerClientSelect');
+    if (timerSelect) {
+        timerSelect.innerHTML = '<option value="">-- Select a client --</option>';
+        clients.forEach(c => {
+            timerSelect.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} ($${c.rate}/hr)</option>`;
+        });
+    }
+    
+    const filterSelect = document.getElementById('timeInvoiceFilter');
+    if (filterSelect) {
+        filterSelect.innerHTML = '<option value="all">-- All Clients --</option>';
+        clients.forEach(c => {
+            filterSelect.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+        });
+    }
+}
+
+function refreshRecentEntries() {
+    const tbody = document.getElementById('recentEntriesTableBody');
+    if (tbody) {
+        const t = translations[currentLanguage];
+        const recent = [...timeEntries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+        if (recent.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No time entries yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        recent.forEach(entry => {
+            const client = clients.find(c => c.id === entry.clientId);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${client?.name || 'Unknown'}</td>
+                    <td>${escapeHtml(entry.description)}</td>
+                    <td>${entry.duration} hrs</td>
+                    <td>$${client?.rate || 0}/hr</td>
+                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td>
+                    <td>${entry.date}</td>
+                    <td>${entry.invoiced ? '✅ Invoiced' : '⏳ Pending'}</td>
+                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">${t.delete}</button></td>
+                </tr>
+            `;
+        });
+    }
+}
+
+function refreshInvoicesTable() {
+    const tbody = document.getElementById('invoicesTableBody');
+    if (tbody) {
+        const t = translations[currentLanguage];
+        if (invoices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No invoices yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        invoices.forEach(inv => {
+            const client = clients.find(c => c.id === inv.clientId);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.invoiceNumber}</td>
+                    <td>${client?.name || inv.clientName || 'Unknown'}</td>
+                    <td>${inv.currency || '$'}${inv.amount.toFixed(2)}</td>
+                    <td><span class="${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? t.paid : t.unpaid}</span></td>
+                    <td>${inv.date}</td>
+                    <td>
+                        <button class="btn-primary" onclick="viewInvoice(${inv.id})" style="margin-right:5px">${t.view}</button>
+                        <button class="btn-primary" onclick="downloadInvoicePDF(${inv.id})" style="background:#00d25b">${t.pdf}</button>
+                        ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markInvoicePaid(${inv.id})" style="margin-left:5px">${t.markPaid}</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+    }
+}
+
+function refreshClientsTable() {
+    const tbody = document.getElementById('clientsTableBody');
+    if (tbody) {
+        const t = translations[currentLanguage];
+        if (clients.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No clients added yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        clients.forEach(c => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${escapeHtml(c.name)}</td>
+                    <td>${c.email}</td>
+                    <td>$${c.rate}/hour</td>
+                    <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t.delete}</button></td>
+                </tr>
+            `;
+        });
+    }
+}
+
+function refreshAllEntriesTable() {
+    const tbody = document.getElementById('allEntriesTableBody');
+    if (tbody) {
+        if (timeEntries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No time entries yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        timeEntries.forEach(entry => {
+            const client = clients.find(c => c.id === entry.clientId);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${client?.name || 'Unknown'}</td>
+                    <td>${escapeHtml(entry.description)}</td>
+                    <td>${entry.duration} hrs</td>
+                    <td>$${client?.rate || 0}/hr</td>
+                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td>
+                    <td>${entry.date}</td>
+                    <td>${entry.invoiced ? '✅ Yes' : '❌ No'}</td>
+                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">Delete</button></td>
+                </tr>
+            `;
+        });
+    }
+}
+
+function refreshUnpaidEntriesList() {
+    const container = document.getElementById('unpaidEntriesContainer');
+    const filterValue = document.getElementById('timeInvoiceFilter')?.value || 'all';
+    
+    if (container) {
+        let unpaid = timeEntries.filter(e => !e.invoiced);
+        if (filterValue !== 'all') {
+            unpaid = unpaid.filter(e => e.clientId == filterValue);
+        }
+        
+        if (unpaid.length === 0) {
+            container.innerHTML = '<div class="placeholder-text">📭 No unpaid time entries found.</div>';
+            document.getElementById('createTimeInvoiceBtn').style.display = 'none';
+            return;
+        }
+        
+        let html = '';
+        unpaid.forEach(entry => {
+            const client = clients.find(c => c.id === entry.clientId);
+            const amount = entry.duration * (client?.rate || 0);
+            html += `
+                <div class="entry-item">
+                    <input type="checkbox" value="${entry.id}" id="unpaid_${entry.id}">
+                    <label for="unpaid_${entry.id}">
+                        <strong>${client?.name || 'Unknown'}</strong> - ${escapeHtml(entry.description)}<br>
+                        <small>${entry.duration} hrs @ $${client?.rate}/hr = $${amount.toFixed(2)}</small>
+                    </label>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        document.getElementById('createTimeInvoiceBtn').style.display = 'block';
+    }
+}
+
+// ============================================
+// TIMER FUNCTIONS
+// ============================================
+function startTimer() {
+    const clientId = document.getElementById('timerClientSelect').value;
+    if (!clientId) {
+        alert('Please select a client first');
+        return;
+    }
+    const taskDesc = document.getElementById('timerTaskDesc').value;
+    if (!taskDesc) {
+        alert('Please enter a task description');
+        return;
+    }
+    
+    activeTimerClientId = parseInt(clientId);
+    activeTimerTaskDesc = taskDesc;
+    timerActive = true;
     timerSeconds = 0;
     updateTimerDisplay();
     
     timerInterval = setInterval(() => {
-        if (timerRunning) {
+        if (timerActive) {
             timerSeconds++;
             updateTimerDisplay();
+            updateEarnedAmount();
         }
     }, 1000);
     
     document.getElementById('startTimerBtn').disabled = true;
     document.getElementById('stopTimerBtn').disabled = false;
+    document.getElementById('resetTimerBtn').disabled = false;
+    
+    const client = clients.find(c => c.id === activeTimerClientId);
+    document.getElementById('timerHourlyRate').value = `$${client.rate}/hour`;
 }
 
 function stopTimer() {
-    if (!timerRunning) return;
-    timerRunning = false;
+    if (!timerActive) return;
+    timerActive = false;
     clearInterval(timerInterval);
     
-    const durationHours = timerSeconds / 3600;
+    const hours = timerSeconds / 3600;
+    const client = clients.find(c => c.id === activeTimerClientId);
+    const amount = hours * client.rate;
+    
     const newEntry = {
         id: Date.now(),
-        clientId: activeTimerProject,
-        description: activeTimerDesc,
-        duration: parseFloat(durationHours.toFixed(2)),
+        clientId: activeTimerClientId,
+        description: activeTimerTaskDesc,
+        duration: parseFloat(hours.toFixed(2)),
         date: getTodayDate(),
-        invoiced: false
+        invoiced: false,
+        amount: amount
     };
+    
     timeEntries.push(newEntry);
-    saveAll();
+    saveData();
     refreshAll();
     
-    document.getElementById('startTimerBtn').disabled = false;
-    document.getElementById('stopTimerBtn').disabled = true;
-    document.getElementById('taskDescription').value = '';
-    document.getElementById('timerDisplay').innerHTML = '00:00:00';
-    timerSeconds = 0;
+    resetTimerUI();
+    alert(`✓ Logged: ${hours.toFixed(2)} hours = $${amount.toFixed(2)}`);
 }
 
-// Client functions
+function resetTimer() {
+    if (timerActive) {
+        timerActive = false;
+        clearInterval(timerInterval);
+    }
+    resetTimerUI();
+}
+
+function resetTimerUI() {
+    timerSeconds = 0;
+    updateTimerDisplay();
+    document.getElementById('startTimerBtn').disabled = false;
+    document.getElementById('stopTimerBtn').disabled = true;
+    document.getElementById('resetTimerBtn').disabled = true;
+    document.getElementById('timerHourlyRate').value = '';
+    document.getElementById('timerEarned').value = '$0.00';
+}
+
+function updateTimerDisplay() {
+    const hours = Math.floor(timerSeconds / 3600);
+    const minutes = Math.floor((timerSeconds % 3600) / 60);
+    const seconds = timerSeconds % 60;
+    document.getElementById('timerHours').innerText = String(hours).padStart(2, '0');
+    document.getElementById('timerMinutes').innerText = String(minutes).padStart(2, '0');
+    document.getElementById('timerSeconds').innerText = String(seconds).padStart(2, '0');
+}
+
+function updateEarnedAmount() {
+    if (!activeTimerClientId) return;
+    const client = clients.find(c => c.id === activeTimerClientId);
+    if (client) {
+        const hours = timerSeconds / 3600;
+        const earned = hours * client.rate;
+        document.getElementById('timerEarned').value = `$${earned.toFixed(2)}`;
+    }
+}
+
+// ============================================
+// CLIENT FUNCTIONS
+// ============================================
 function openAddClientModal() {
+    updateUILanguage();
     document.getElementById('clientModal').style.display = 'flex';
 }
 
 function closeClientModal() {
     document.getElementById('clientModal').style.display = 'none';
-    document.getElementById('clientName').value = '';
-    document.getElementById('clientEmail').value = '';
-    document.getElementById('clientRate').value = '';
+    document.getElementById('modalClientName').value = '';
+    document.getElementById('modalClientEmail').value = '';
+    document.getElementById('modalClientRate').value = '';
 }
 
-function addClient() {
-    const name = document.getElementById('clientName').value;
-    const email = document.getElementById('clientEmail').value;
-    const rate = parseFloat(document.getElementById('clientRate').value);
-    if (!name || !rate) { alert('Name and rate required'); return; }
-    clients.push({ id: Date.now(), name, email, rate });
-    saveAll();
+function saveNewClient() {
+    const name = document.getElementById('modalClientName').value;
+    const email = document.getElementById('modalClientEmail').value;
+    const rate = parseFloat(document.getElementById('modalClientRate').value);
+    
+    if (!name || !rate) {
+        alert('Please enter client name and hourly rate');
+        return;
+    }
+    
+    clients.push({
+        id: Date.now(),
+        name: name,
+        email: email,
+        rate: rate
+    });
+    saveData();
     refreshAll();
     closeClientModal();
 }
@@ -920,570 +601,437 @@ function addClient() {
 function deleteClient(id) {
     if (confirm('Delete this client?')) {
         clients = clients.filter(c => c.id !== id);
-        saveAll();
+        saveData();
         refreshAll();
     }
 }
 
-function deleteEntry(id) {
+function deleteTimeEntry(id) {
     if (confirm('Delete this time entry?')) {
         timeEntries = timeEntries.filter(e => e.id !== id);
-        saveAll();
+        saveData();
         refreshAll();
     }
 }
 
-// Invoice functions
-function openCreateInvoiceModal() {
-    const clientSelect = document.getElementById('invoiceClientSelect');
-    if (!clientSelect) return;
-    clientSelect.innerHTML = '<option value="">Select client</option>';
-    clients.forEach(c => {
-        clientSelect.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
-    });
-    
-    const checklist = document.getElementById('timeEntriesChecklist');
-    if (checklist) checklist.innerHTML = '<p>Select a client first</p>';
-    document.getElementById('invoiceModal').style.display = 'flex';
-}
-
-function closeInvoiceModal() {
-    document.getElementById('invoiceModal').style.display = 'none';
-    document.getElementById('invoiceNotes').value = '';
-}
-
-function loadUnpaidEntries() {
-    const clientId = parseInt(document.getElementById('invoiceClientSelect').value);
-    if (!clientId) return;
-    const unpaidEntries = timeEntries.filter(entry => entry.clientId === clientId && !entry.invoiced);
-    const checklist = document.getElementById('timeEntriesChecklist');
-    if (!checklist) return;
-    if (unpaidEntries.length === 0) {
-        checklist.innerHTML = '<p>No unpaid time entries for this client</p>';
+// ============================================
+// INVOICE FUNCTIONS
+// ============================================
+function createTimeInvoice() {
+    const checkboxes = document.querySelectorAll('#unpaidEntriesContainer input:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one time entry');
         return;
     }
-    checklist.innerHTML = '';
-    unpaidEntries.forEach(entry => {
-        checklist.innerHTML += `<div>
-            <input type="checkbox" value="${entry.id}" id="entry_${entry.id}">
-            <label for="entry_${entry.id}">${escapeHtml(entry.description)} - ${entry.duration} hours</label>
-        </div>`;
+    
+    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    const selectedEntries = timeEntries.filter(e => selectedIds.includes(e.id));
+    
+    const clientIds = [...new Set(selectedEntries.map(e => e.clientId))];
+    if (clientIds.length > 1) {
+        alert('Please select time entries from only ONE client');
+        return;
+    }
+    
+    const client = clients.find(c => c.id === clientIds[0]);
+    let totalAmount = 0;
+    selectedEntries.forEach(e => {
+        totalAmount += e.duration * client.rate;
     });
-}
-
-function generateInvoiceFromTimeEntries() {
-    const clientId = parseInt(document.getElementById('invoiceClientSelect').value);
-    if (!clientId) { alert('Select client'); return; }
-    const checkboxes = document.querySelectorAll('#timeEntriesChecklist input:checked');
-    if (checkboxes.length === 0) { alert('Select at least one time entry'); return; }
     
-    const selectedEntryIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
-    const selectedEntries = timeEntries.filter(e => selectedEntryIds.includes(e.id));
-    const client = clients.find(c => c.id === clientId);
-    
-    const totalAmount = selectedEntries.reduce((sum, e) => sum + (e.duration * client.rate), 0);
-    const invoiceNumber = `INV-${String(invoices.length + 1).padStart(3,'0')}`;
-    
+    const invoiceNumber = `INV-${String(invoices.length + 1).padStart(3, '0')}`;
     const newInvoice = {
         id: Date.now(),
-        invoiceNumber,
-        clientId,
+        invoiceNumber: invoiceNumber,
+        clientId: client.id,
+        clientName: client.name,
         amount: totalAmount,
         status: 'unpaid',
         date: getTodayDate(),
-        entries: selectedEntryIds,
-        notes: document.getElementById('invoiceNotes').value,
+        description: selectedEntries.map(e => e.description).join(', '),
         currency: '$'
     };
     
     invoices.push(newInvoice);
     selectedEntries.forEach(e => { e.invoiced = true; });
-    saveAll();
+    saveData();
     refreshAll();
-    closeInvoiceModal();
+    alert(`Invoice ${invoiceNumber} created for $${totalAmount.toFixed(2)}`);
     
-    if (confirm(`Invoice ${invoiceNumber} created for $${totalAmount.toFixed(2)}. Download PDF now?`)) {
+    if (confirm('Download PDF now?')) {
         downloadInvoicePDF(newInvoice.id);
     }
 }
 
-function markPaid(invoiceId) {
-    const invoice = invoices.find(i => i.id === invoiceId);
+function markInvoicePaid(id) {
+    const invoice = invoices.find(i => i.id === id);
     if (invoice) {
         invoice.status = 'paid';
-        saveAll();
-        refreshAll();
+        saveData();
+        refreshInvoicesTable();
         alert(`Invoice ${invoice.invoiceNumber} marked as paid.`);
     }
 }
 
-function viewInvoice(invoiceId) {
-    const invoice = invoices.find(i => i.id === invoiceId);
+function viewInvoice(id) {
+    const invoice = invoices.find(i => i.id === id);
     const client = clients.find(c => c.id === invoice.clientId);
-    const entries = timeEntries.filter(e => invoice.entries.includes(e.id));
-    
-    let details = `INVOICE: ${invoice.invoiceNumber}\n`;
-    details += `Client: ${client.name}\n`;
-    details += `Date: ${invoice.date}\n`;
-    details += `Status: ${invoice.status}\n`;
-    details += `\n--- Items ---\n`;
-    entries.forEach(e => {
-        details += `${e.description}: ${e.duration} hrs @ $${client.rate}/hr = $${(e.duration * client.rate).toFixed(2)}\n`;
-    });
-    details += `\nTotal: $${invoice.amount.toFixed(2)}\n`;
-    details += `\nNotes: ${invoice.notes || 'None'}`;
-    alert(details);
+    alert(`Invoice: ${invoice.invoiceNumber}\nClient: ${client?.name}\nAmount: $${invoice.amount}\nStatus: ${invoice.status}\nDate: ${invoice.date}`);
 }
 
-// PDF Invoice from time entries
+// ============================================
+// QUICK INVOICE FUNCTIONS
+// ============================================
+function renderInvoiceItems() {
+    const container = document.getElementById('invoiceItemsContainer');
+    if (container) {
+        container.innerHTML = '';
+        invoiceItems.forEach((item, idx) => {
+            container.innerHTML += `
+                <div class="item-row" data-index="${idx}">
+                    <input type="text" class="item-desc" placeholder="Description" value="${escapeHtml(item.desc)}" onchange="updateInvoiceItem(${idx}, 'desc', this.value)">
+                    <input type="number" class="item-qty" placeholder="Qty" value="${item.qty}" onchange="updateInvoiceItem(${idx}, 'qty', parseFloat(this.value) || 0)">
+                    <input type="number" class="item-price" placeholder="Price" value="${item.price}" onchange="updateInvoiceItem(${idx}, 'price', parseFloat(this.value) || 0)">
+                    <button class="remove-item-btn" onclick="removeInvoiceItem(${idx})">✕</button>
+                </div>
+            `;
+        });
+    }
+}
+
+function updateInvoiceItem(index, field, value) {
+    if (invoiceItems[index]) {
+        invoiceItems[index][field] = value;
+    }
+}
+
+function addInvoiceItem() {
+    invoiceItems.push({ desc: '', qty: 1, price: 0 });
+    renderInvoiceItems();
+}
+
+function removeInvoiceItem(index) {
+    if (invoiceItems.length > 1) {
+        invoiceItems.splice(index, 1);
+    } else {
+        invoiceItems[0] = { desc: '', qty: 1, price: 0 };
+    }
+    renderInvoiceItems();
+}
+
+function calculateInvoiceTotal() {
+    let subtotal = 0;
+    invoiceItems.forEach(item => {
+        subtotal += (item.qty || 0) * (item.price || 0);
+    });
+    const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
+    const discount = parseFloat(document.getElementById('invDiscount').value) || 0;
+    const tax = subtotal * taxRate / 100;
+    const total = subtotal + tax - discount;
+    const currency = document.getElementById('invCurrency').value || '$';
+    return { subtotal, tax, discount, total, currency };
+}
+
+function previewInvoice() {
+    const clientName = document.getElementById('invClientName').value;
+    if (!clientName) {
+        alert('Please enter client name');
+        return;
+    }
+    
+    const { subtotal, tax, discount, total, currency } = calculateInvoiceTotal();
+    let itemsHtml = '';
+    invoiceItems.forEach(item => {
+        if (item.desc && item.price > 0) {
+            itemsHtml += `<div>${escapeHtml(item.desc)}: ${item.qty} x ${currency}${item.price} = ${currency}${(item.qty * item.price).toFixed(2)}</div>`;
+        }
+    });
+    
+    document.getElementById('previewContent').innerHTML = `
+        <div><strong>Client:</strong> ${escapeHtml(clientName)}</div>
+        <div><strong>Invoice #:</strong> ${document.getElementById('invNumber').value || 'Auto'}</div>
+        <div><strong>Items:</strong></div>
+        ${itemsHtml || 'No items'}
+        <div>Subtotal: ${currency}${subtotal.toFixed(2)}</div>
+        ${tax > 0 ? `<div>Tax (${document.getElementById('invTaxRate').value}%): ${currency}${tax.toFixed(2)}</div>` : ''}
+        ${discount > 0 ? `<div>Discount: -${currency}${discount.toFixed(2)}</div>` : ''}
+        <div><strong>Total: ${currency}${total.toFixed(2)}</strong></div>
+    `;
+    document.getElementById('previewArea').style.display = 'block';
+}
+
+function generatePDF() {
+    const clientName = document.getElementById('invClientName').value;
+    if (!clientName) {
+        alert('Please enter client name');
+        return;
+    }
+    
+    const validItems = invoiceItems.filter(i => i.desc && i.price > 0);
+    if (validItems.length === 0) {
+        alert('Please add at least one item');
+        return;
+    }
+    
+    let subtotal = 0;
+    validItems.forEach(i => { subtotal += i.qty * i.price; });
+    const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
+    const discount = parseFloat(document.getElementById('invDiscount').value) || 0;
+    const tax = subtotal * taxRate / 100;
+    const total = subtotal + tax - discount;
+    const currencySymbol = document.getElementById('invCurrency').value || '$';
+    const pdfCurrency = getPdfCurrency(currencySymbol);
+    const invoiceNumber = document.getElementById('invNumber').value || 'INV-' + Date.now().toString().slice(-6);
+    const issueDate = document.getElementById('invIssueDate').value || getTodayDate();
+    const dueDate = document.getElementById('invDueDate').value || '';
+    const clientEmail = document.getElementById('invClientEmail').value;
+    const clientAddress = document.getElementById('invClientAddress').value;
+    const notes = document.getElementById('invNotes').value;
+    const fmt = (n) => n.toFixed(2);
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 20;
+    
+    doc.setFontSize(20);
+    doc.setTextColor(41, 128, 185);
+    doc.text(companyInfo.name, 20, y);
+    y += 10;
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(companyInfo.email, 20, y);
+    y += 6;
+    doc.text(companyInfo.phone, 20, y);
+    y += 6;
+    doc.text(companyInfo.address, 20, y);
+    y += 15;
+    
+    doc.setFontSize(22);
+    doc.setTextColor(0, 0, 0);
+    doc.text('INVOICE', 140, 35);
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`#: ${invoiceNumber}`, 140, 45);
+    doc.text(`Date: ${issueDate}`, 140, 52);
+    if (dueDate) doc.text(`Due: ${dueDate}`, 140, 59);
+    
+    y = 75;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Bill To:', 20, y);
+    y += 7;
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text(clientName, 20, y);
+    y += 6;
+    if (clientEmail) doc.text(clientEmail, 20, y);
+    y += 6;
+    if (clientAddress) doc.text(clientAddress, 20, y);
+    y += 15;
+    
+    const tableData = validItems.map(i => [i.desc, i.qty.toString(), `${pdfCurrency}${fmt(i.price)}`, `${pdfCurrency}${fmt(i.qty * i.price)}`]);
+    doc.autoTable({
+        startY: y,
+        head: [['Description', 'Qty', 'Price', 'Amount']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        margin: { left: 20, right: 20 }
+    });
+    
+    y = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Subtotal:', 140, y);
+    doc.text(`${pdfCurrency}${fmt(subtotal)}`, 180, y);
+    y += 7;
+    if (taxRate > 0) {
+        doc.text(`Tax (${taxRate}%):`, 140, y);
+        doc.text(`${pdfCurrency}${fmt(tax)}`, 180, y);
+        y += 7;
+    }
+    if (discount > 0) {
+        doc.text('Discount:', 140, y);
+        doc.text(`-${pdfCurrency}${fmt(discount)}`, 180, y);
+        y += 7;
+    }
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('TOTAL:', 140, y);
+    doc.text(`${pdfCurrency}${fmt(total)}`, 180, y);
+    doc.setFont(undefined, 'normal');
+    y += 20;
+    
+    if (notes) {
+        doc.setFontSize(9);
+        doc.text('Notes:', 20, y);
+        doc.setFontSize(8);
+        doc.text(notes.length > 80 ? notes.substring(0, 77) + '...' : notes, 20, y + 7);
+        y += 20;
+    }
+    
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'bold');
+    doc.text('Payment Instructions:', 20, y);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Bank: ${companyInfo.bankName}`, 20, y + 8);
+    doc.text(`Account: ${companyInfo.accountNumber}`, 20, y + 15);
+    doc.text(companyInfo.paymentInstructions, 20, y + 25);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Thank you for your business!', 20, 280);
+    
+    doc.save(`${invoiceNumber}_${clientName.replace(/\s/g, '_')}.pdf`);
+    
+    if (confirm('Save this invoice to history?')) {
+        invoices.push({
+            id: Date.now(),
+            invoiceNumber: invoiceNumber,
+            clientId: null,
+            clientName: clientName,
+            amount: total,
+            status: 'unpaid',
+            date: issueDate,
+            description: validItems.map(i => i.desc).join(', '),
+            currency: currencySymbol
+        });
+        saveData();
+        refreshInvoicesTable();
+        alert('Invoice saved!');
+    }
+}
+
+function resetInvoiceForm() {
+    document.getElementById('invClientName').value = '';
+    document.getElementById('invClientEmail').value = '';
+    document.getElementById('invClientAddress').value = '';
+    document.getElementById('invNumber').value = '';
+    document.getElementById('invIssueDate').value = getTodayDate();
+    document.getElementById('invDueDate').value = '';
+    document.getElementById('invTaxRate').value = '0';
+    document.getElementById('invDiscount').value = '0';
+    document.getElementById('invNotes').value = '';
+    invoiceItems = [{ desc: '', qty: 1, price: 0 }];
+    renderInvoiceItems();
+    document.getElementById('previewArea').style.display = 'none';
+}
+
+// ============================================
+// PDF DOWNLOAD FOR SAVED INVOICES
+// ============================================
 async function downloadInvoicePDF(invoiceId) {
     const invoice = invoices.find(i => i.id === invoiceId);
     if (!invoice) { alert('Invoice not found'); return; }
     
     const client = clients.find(c => c.id === invoice.clientId);
-    if (!client) { alert('Client not found'); return; }
-    
-    const entries = timeEntries.filter(e => invoice.entries.includes(e.id));
-    
-    if (typeof window.jspdf === 'undefined') {
-        alert('PDF library is still loading. Please try again in a moment.');
-        return;
-    }
+    const clientName = client?.name || invoice.clientName || 'Client';
+    const amount = invoice.amount;
+    const invoiceNumber = invoice.invoiceNumber;
+    const date = invoice.date;
+    const currencySymbol = invoice.currency || '$';
+    const pdfCurrency = getPdfCurrency(currencySymbol);
     
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    let y = 20;
     
-    doc.setFontSize(24);
+    doc.setFontSize(20);
     doc.setTextColor(41, 128, 185);
-    doc.text(companyInfo.name, 20, 25);
-    
+    doc.text(companyInfo.name, 20, y);
+    y += 10;
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text(companyInfo.email, 20, 35);
-    doc.text(companyInfo.phone, 20, 42);
-    doc.text(companyInfo.address, 20, 49);
+    doc.text(companyInfo.email, 20, y);
+    y += 6;
+    doc.text(companyInfo.phone, 20, y);
+    y += 6;
+    doc.text(companyInfo.address, 20, y);
+    y += 15;
     
-    doc.setFontSize(26);
+    doc.setFontSize(22);
     doc.setTextColor(0, 0, 0);
     doc.text('INVOICE', 140, 35);
-    
     doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
-    doc.text(`Invoice #: ${invoice.invoiceNumber}`, 140, 48);
-    doc.text(`Date: ${invoice.date}`, 140, 55);
-    doc.text(`Status: ${invoice.status.toUpperCase()}`, 140, 62);
+    doc.text(`#: ${invoiceNumber}`, 140, 45);
+    doc.text(`Date: ${date}`, 140, 52);
     
+    y = 75;
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text('Bill To:', 20, 85);
-    
+    doc.text('Bill To:', 20, y);
+    y += 7;
     doc.setFontSize(10);
     doc.setTextColor(60, 60, 60);
-    doc.text(client.name, 20, 95);
-    doc.text(client.email, 20, 103);
+    doc.text(clientName, 20, y);
+    y += 20;
     
-    const tableData = entries.map(entry => [
-        entry.description,
-        entry.duration + ' hrs',
-        `$${client.rate}/hr`,
-        `$${(entry.duration * client.rate).toFixed(2)}`
-    ]);
-    
-    doc.autoTable({
-        startY: 118,
-        head: [['Description', 'Hours', 'Rate', 'Amount']],
-        body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-        margin: { left: 20, right: 20 }
-    });
-    
-    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFillColor(41, 128, 185);
+    doc.setTextColor(255, 255, 255);
+    doc.rect(20, y, 170, 8, 'F');
+    doc.text('Description', 25, y + 6);
+    doc.text('Amount', 175, y + 6, { align: 'right' });
+    y += 10;
+    doc.setTextColor(0, 0, 0);
+    const description = invoice.description || 'Services rendered';
+    doc.text(description.length > 50 ? description.substring(0, 47) + '...' : description, 25, y + 5);
+    doc.text(`${pdfCurrency}${amount.toFixed(2)}`, 175, y + 5, { align: 'right' });
+    y += 20;
     
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'bold');
-    doc.text('TOTAL:', 140, finalY);
-    doc.text(`$${invoice.amount.toFixed(2)}`, 175, finalY, { align: 'right' });
-    doc.setFont(undefined, 'normal');
-    
-    if (invoice.notes) {
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.text('Notes:', 20, finalY + 15);
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 80);
-        const splitNotes = doc.splitTextToSize(invoice.notes, 170);
-        doc.text(splitNotes, 20, finalY + 23);
-    }
-    
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, 'bold');
-    doc.text('Payment Instructions:', 20, 250);
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(80, 80, 80);
-    
-    let paymentY = 258;
-    doc.text(`Bank: ${companyInfo.bankName}`, 20, paymentY);
-    doc.text(`Account Name: ${companyInfo.accountName}`, 20, paymentY + 7);
-    doc.text(`Account Number: ${companyInfo.accountNumber}`, 20, paymentY + 14);
-    doc.text(`Routing Number: ${companyInfo.routingNumber}`, 20, paymentY + 21);
-    doc.text(companyInfo.paymentInstructions, 20, paymentY + 32);
-    doc.text(`Tax ID: ${companyInfo.taxId}`, 20, paymentY + 42);
-    
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Thank you for your business!', 20, 280);
-    
-    doc.save(`Invoice_${invoice.invoiceNumber}_${client.name.replace(/\s/g, '_')}.pdf`);
-}
-
-// Quick Invoice Functions
-function renderQuickInvoiceItems() {
-    const container = document.getElementById('qiItemsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    quickInvoiceItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.innerHTML = `
-            <input type="text" class="item-desc" placeholder="Description" value="${escapeHtml(item.desc)}" data-index="${index}" data-field="desc">
-            <input type="number" class="item-qty" placeholder="Qty" value="${item.qty}" data-index="${index}" data-field="qty">
-            <input type="number" class="item-price" placeholder="Price" value="${item.price}" data-index="${index}" data-field="price">
-            <button class="remove-item-btn" data-index="${index}" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:8px 12px; cursor:pointer;">✕</button>
-        `;
-        container.appendChild(div);
-    });
-    
-    document.querySelectorAll('#qiItemsContainer input').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const idx = parseInt(e.target.dataset.index);
-            const field = e.target.dataset.field;
-            if (quickInvoiceItems[idx]) {
-                if (field === 'qty' || field === 'price') {
-                    quickInvoiceItems[idx][field] = parseFloat(e.target.value) || 0;
-                } else {
-                    quickInvoiceItems[idx][field] = e.target.value;
-                }
-            }
-        });
-    });
-    
-    document.querySelectorAll('.remove-item-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idx = parseInt(btn.dataset.index);
-            if (quickInvoiceItems.length > 1) {
-                quickInvoiceItems.splice(idx, 1);
-            } else {
-                quickInvoiceItems[0] = { desc: '', qty: 1, price: 0 };
-            }
-            renderQuickInvoiceItems();
-        });
-    });
-}
-
-function addQuickInvoiceItem() {
-    quickInvoiceItems.push({ desc: '', qty: 1, price: 0 });
-    renderQuickInvoiceItems();
-}
-
-function calculateQuickInvoiceTotal() {
-    let subtotal = 0;
-    quickInvoiceItems.forEach(item => {
-        subtotal += (item.qty || 0) * (item.price || 0);
-    });
-    
-    const taxRate = parseFloat(document.getElementById('qiTaxRate')?.value) || 0;
-    const discount = parseFloat(document.getElementById('qiDiscount')?.value) || 0;
-    
-    const tax = subtotal * (taxRate / 100);
-    const total = subtotal + tax - discount;
-    
-    const currencySelect = document.getElementById('qiCurrency');
-    const currencySymbol = currencySelect?.value || '$';
-    
-    return { subtotal, tax, discount, total, currencySymbol };
-}
-
-function previewQuickInvoice() {
-    const clientName = document.getElementById('qiClientName').value;
-    if (!clientName) {
-        alert('Please enter client name');
-        return;
-    }
-    
-    const { subtotal, tax, discount, total, currencySymbol } = calculateQuickInvoiceTotal();
-    const currency = currencySymbol;
-    
-    const itemsHtml = quickInvoiceItems.filter(i => i.desc && i.price > 0).map(item => `
-        <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${escapeHtml(item.desc)}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${currency}${(item.price || 0).toFixed(2)}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${currency}${(item.qty * item.price).toFixed(2)}</td>
-        </tr>
-    `).join('');
-    
-    const previewHtml = `
-        <div style="max-width: 500px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h3>${companyInfo.name}</h3>
-                <p style="font-size: 12px;">${companyInfo.email} | ${companyInfo.phone}<br>${companyInfo.address}</p>
-            </div>
-            <div style="border-top: 2px solid #1a73e8; margin: 10px 0;"></div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <div>
-                    <strong>Bill To:</strong><br>
-                    ${escapeHtml(clientName)}<br>
-                    ${escapeHtml(document.getElementById('qiClientEmail').value || '')}<br>
-                    ${escapeHtml(document.getElementById('qiClientAddress').value || '')}
-                </div>
-                <div style="text-align: right;">
-                    <strong>Invoice #:</strong> ${document.getElementById('qiInvoiceNumber').value || 'Auto'}<br>
-                    <strong>Date:</strong> ${document.getElementById('qiIssueDate').value || 'Not set'}<br>
-                    <strong>Due:</strong> ${document.getElementById('qiDueDate').value || 'Not set'}
-                </div>
-            </div>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead><tr style="background: #1a73e8; color: white;">
-                    <th style="padding: 8px; text-align: left;">Item</th>
-                    <th style="padding: 8px; text-align: center;">Qty</th>
-                    <th style="padding: 8px; text-align: right;">Price</th>
-                    <th style="padding: 8px; text-align: right;">Total</th>
-                </tr></thead>
-                <tbody>${itemsHtml || '<tr><td colspan="4" style="text-align:center;">No items added</td>'}</tbody>
-            </table>
-            <div style="margin-top: 20px; text-align: right;">
-                <p>Subtotal: ${currency}${subtotal.toFixed(2)}</p>
-                ${tax > 0 ? `<p>Tax (${document.getElementById('qiTaxRate').value}%): ${currency}${tax.toFixed(2)}</p>` : ''}
-                ${discount > 0 ? `<p>Discount: -${currency}${discount.toFixed(2)}</p>` : ''}
-                <p><strong>Total: ${currency}${total.toFixed(2)}</strong></p>
-            </div>
-            ${document.getElementById('qiNotes').value ? `<div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 8px;"><strong>Notes:</strong><br>${escapeHtml(document.getElementById('qiNotes').value)}</div>` : ''}
-        </div>
-    `;
-    
-    const previewDiv = document.getElementById('qiPreviewContent');
-    if (previewDiv) {
-        previewDiv.innerHTML = previewHtml;
-        document.getElementById('qiPreview').style.display = 'block';
-    }
-}
-
-async function generateQuickInvoicePDF() {
-    const clientName = document.getElementById('qiClientName').value;
-    if (!clientName) {
-        alert('Please enter client name');
-        return;
-    }
-    
-    const validItems = quickInvoiceItems.filter(item => item.desc && item.price > 0);
-    if (validItems.length === 0) {
-        alert('Please add at least one item with description and price');
-        return;
-    }
-    
-    if (typeof window.jspdf === 'undefined') {
-        alert('PDF library is still loading. Please try again in a moment.');
-        return;
-    }
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    const invoiceNumber = document.getElementById('qiInvoiceNumber').value || `INV-${String(invoices.length + 1).padStart(3, '0')}`;
-    const issueDate = document.getElementById('qiIssueDate').value || getTodayDate();
-    const dueDate = document.getElementById('qiDueDate').value || '';
-    const clientEmail = document.getElementById('qiClientEmail').value;
-    const clientAddress = document.getElementById('qiClientAddress').value;
-    const notes = document.getElementById('qiNotes').value;
-    const taxRate = parseFloat(document.getElementById('qiTaxRate').value) || 0;
-    const discount = parseFloat(document.getElementById('qiDiscount').value) || 0;
-    const currencySelect = document.getElementById('qiCurrency');
-    const currencySymbol = currencySelect?.value || '$';
-    
-    const { subtotal, tax, discount: disc, total } = calculateQuickInvoiceTotal();
-    
-    doc.setFontSize(24);
-    doc.setTextColor(41, 128, 185);
-    doc.text(companyInfo.name, 20, 25);
+    doc.text('TOTAL:', 140, y);
+    doc.text(`${pdfCurrency}${amount.toFixed(2)}`, 175, y, { align: 'right' });
+    y += 20;
     
     doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text(companyInfo.email, 20, 35);
-    doc.text(companyInfo.phone, 20, 42);
-    doc.text(companyInfo.address, 20, 49);
+    doc.text('Payment Instructions:', 20, y);
+    doc.text(`Bank: ${companyInfo.bankName}`, 20, y + 8);
+    doc.text(`Account: ${companyInfo.accountNumber}`, 20, y + 15);
     
-    doc.setFontSize(26);
-    doc.setTextColor(0, 0, 0);
-    doc.text('INVOICE', 140, 35);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
-    doc.text(`Invoice #: ${invoiceNumber}`, 140, 48);
-    doc.text(`Issue Date: ${issueDate}`, 140, 55);
-    if (dueDate) doc.text(`Due Date: ${dueDate}`, 140, 62);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Bill To:', 20, 85);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
-    doc.text(clientName, 20, 95);
-    if (clientEmail) doc.text(clientEmail, 20, 103);
-    if (clientAddress) {
-        const splitAddress = doc.splitTextToSize(clientAddress, 80);
-        doc.text(splitAddress, 20, 111);
-    }
-    
-    const tableData = quickInvoiceItems
-        .filter(item => item.desc && item.price > 0)
-        .map(item => [
-            item.desc,
-            item.qty.toString(),
-            `${currencySymbol}${(item.price || 0).toFixed(2)}`,
-            `${currencySymbol}${(item.qty * item.price).toFixed(2)}`
-        ]);
-    
-    let startY = clientAddress ? 125 : 115;
-    
-    doc.autoTable({
-        startY: startY,
-        head: [['Description', 'Quantity', 'Unit Price', 'Amount']],
-        body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-        margin: { left: 20, right: 20 },
-        columnStyles: {
-            0: { cellWidth: 80 },
-            1: { cellWidth: 30, halign: 'center' },
-            2: { cellWidth: 35, halign: 'right' },
-            3: { cellWidth: 35, halign: 'right' }
+    doc.save(`Invoice_${invoiceNumber}.pdf`);
+}
+
+// ============================================
+// CLEAR ALL DATA FUNCTION
+// ============================================
+function clearAllData() {
+    if (confirm('⚠️ WARNING: This will permanently delete ALL your data including clients, time entries, and invoices. This action cannot be undone. Are you sure?')) {
+        if (confirm('Are you ABSOLUTELY sure? All your data will be lost forever!')) {
+            clients = [];
+            timeEntries = [];
+            invoices = [];
+            localStorage.removeItem('freelance_clients');
+            localStorage.removeItem('freelance_timeEntries');
+            localStorage.removeItem('freelance_invoices');
+            resetTimerUI();
+            refreshAll();
+            invoiceItems = [{ desc: '', qty: 1, price: 0 }];
+            renderInvoiceItems();
+            resetInvoiceForm();
+            alert('✅ All data has been cleared successfully!');
         }
-    });
-    
-    const finalY = doc.lastAutoTable.finalY + 10;
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Subtotal:', 140, finalY);
-    doc.text(`${currencySymbol}${subtotal.toFixed(2)}`, 175, finalY, { align: 'right' });
-    
-    let currentY = finalY + 8;
-    if (taxRate > 0) {
-        doc.text(`Tax (${taxRate}%):`, 140, currentY);
-        doc.text(`${currencySymbol}${tax.toFixed(2)}`, 175, currentY, { align: 'right' });
-        currentY += 8;
-    }
-    if (discount > 0) {
-        doc.text('Discount:', 140, currentY);
-        doc.text(`-${currencySymbol}${discount.toFixed(2)}`, 175, currentY, { align: 'right' });
-        currentY += 8;
-    }
-    
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, 'bold');
-    doc.text('TOTAL:', 140, currentY);
-    doc.text(`${currencySymbol}${total.toFixed(2)}`, 175, currentY, { align: 'right' });
-    doc.setFont(undefined, 'normal');
-    
-    if (notes) {
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.text('Notes:', 20, currentY + 15);
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 80);
-        const splitNotes = doc.splitTextToSize(notes, 170);
-        doc.text(splitNotes, 20, currentY + 23);
-    }
-    
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, 'bold');
-    doc.text('Payment Instructions:', 20, 250);
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(80, 80, 80);
-    
-    let paymentY = 258;
-    doc.text(`Bank: ${companyInfo.bankName}`, 20, paymentY);
-    doc.text(`Account Name: ${companyInfo.accountName}`, 20, paymentY + 7);
-    doc.text(`Account Number: ${companyInfo.accountNumber}`, 20, paymentY + 14);
-    doc.text(`Routing Number: ${companyInfo.routingNumber}`, 20, paymentY + 21);
-    doc.text(companyInfo.paymentInstructions, 20, paymentY + 32);
-    doc.text(`Tax ID: ${companyInfo.taxId}`, 20, paymentY + 42);
-    
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Thank you for your business!', 20, 280);
-    doc.text(`Generated by ${companyInfo.name}`, 20, 288);
-    
-    doc.save(`${invoiceNumber}_${clientName.replace(/\s/g, '_')}.pdf`);
-    
-    const saveToHistory = confirm('Save this invoice to your history?');
-    if (saveToHistory) {
-        const newInvoice = {
-            id: Date.now(),
-            invoiceNumber: invoiceNumber,
-            clientId: null,
-            clientName: clientName,
-            clientEmail: clientEmail,
-            amount: total,
-            status: 'unpaid',
-            date: issueDate,
-            dueDate: dueDate,
-            entries: [],
-            notes: notes,
-            items: quickInvoiceItems.filter(i => i.desc && i.price > 0),
-            taxRate: taxRate,
-            discount: discount,
-            currency: currencySymbol
-        };
-        invoices.push(newInvoice);
-        saveAll();
-        refreshInvoicesTable();
-        alert('Invoice saved to history!');
     }
 }
 
-function resetQuickInvoiceForm() {
-    document.getElementById('qiClientName').value = '';
-    document.getElementById('qiClientEmail').value = '';
-    document.getElementById('qiClientAddress').value = '';
-    document.getElementById('qiInvoiceNumber').value = '';
-    document.getElementById('qiIssueDate').value = getTodayDate();
-    document.getElementById('qiDueDate').value = '';
-    document.getElementById('qiNotes').value = 'Payment due within 30 days. Thank you for your business!';
-    document.getElementById('qiTaxRate').value = '0';
-    document.getElementById('qiDiscount').value = '0';
-    document.getElementById('qiCurrency').value = '$';
-    quickInvoiceItems = [{ desc: '', qty: 1, price: 0 }];
-    renderQuickInvoiceItems();
-    document.getElementById('qiPreview').style.display = 'none';
-}
-
-// Export/Import functions
-function exportData() {
-    const data = {
-        clients: clients,
-        timeEntries: timeEntries,
-        invoices: invoices,
-        companyInfo: companyInfo,
-        exportDate: new Date().toISOString()
-    };
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+// ============================================
+// EXPORT/IMPORT FUNCTIONS
+// ============================================
+function exportAllData() {
+    const data = { clients, timeEntries, invoices };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `freelance_backup_${getTodayDate()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    alert('Data exported successfully!');
 }
 
-function importData(file) {
+function importDataFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
@@ -1491,8 +1039,7 @@ function importData(file) {
             if (data.clients) clients = data.clients;
             if (data.timeEntries) timeEntries = data.timeEntries;
             if (data.invoices) invoices = data.invoices;
-            if (data.companyInfo) companyInfo = data.companyInfo;
-            saveAll();
+            saveData();
             refreshAll();
             alert('Data imported successfully!');
         } catch (err) {
@@ -1502,7 +1049,26 @@ function importData(file) {
     reader.readAsText(file);
 }
 
-// Tab switching
+// ============================================
+// LANGUAGE INITIALIZATION
+// ============================================
+function initLanguage() {
+    const langSelect = document.getElementById('languageSelect');
+    if (langSelect) {
+        langSelect.value = currentLanguage;
+        langSelect.addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            localStorage.setItem('freelance_language', currentLanguage);
+            refreshAll();
+            renderInvoiceItems();
+            alert(`Language changed to ${langSelect.options[langSelect.selectedIndex].text}`);
+        });
+    }
+}
+
+// ============================================
+// TAB SWITCHING
+// ============================================
 function initTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1514,98 +1080,85 @@ function initTabs() {
     });
 }
 
-// Initialize Quick Invoice
-function initQuickInvoice() {
-    document.getElementById('qiIssueDate').value = getTodayDate();
-    renderQuickInvoiceItems();
-    
-    document.getElementById('qiAddItemBtn')?.addEventListener('click', addQuickInvoiceItem);
-    document.getElementById('qiPreviewBtn')?.addEventListener('click', previewQuickInvoice);
-    document.getElementById('qiGeneratePDFBtn')?.addEventListener('click', generateQuickInvoicePDF);
-    document.getElementById('qiResetBtn')?.addEventListener('click', resetQuickInvoiceForm);
-}
-
-// Language switcher
-function initLanguageSwitcher() {
-    const languageSelect = document.getElementById('languageSelect');
-    if (languageSelect) {
-        languageSelect.value = currentLanguage;
-        languageSelect.addEventListener('change', (e) => {
-            currentLanguage = e.target.value;
-            localStorage.setItem('freelance_language', currentLanguage);
-            updateUILanguage();
-            refreshAll();
-        });
-    }
-}
-
-// Toggle Help Section
+// ============================================
+// HELP SECTION TOGGLE
+// ============================================
 function toggleHelp() {
-    const helpContent = document.getElementById('helpContent');
-    const toggleIcon = document.getElementById('helpToggleIcon');
-    
-    if (helpContent.classList.contains('collapsed')) {
-        helpContent.classList.remove('collapsed');
-        toggleIcon.innerHTML = '▼';
+    const content = document.getElementById('helpContent');
+    const icon = document.getElementById('helpIcon');
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        icon.innerHTML = '▼';
     } else {
-        helpContent.classList.add('collapsed');
-        toggleIcon.innerHTML = '▶';
+        content.style.display = 'none';
+        icon.innerHTML = '▶';
     }
 }
 
-// Check if first time visitor - START COLLAPSED FOR EVERYONE
-function checkFirstVisit() {
-    const helpContent = document.getElementById('helpContent');
-    const toggleIcon = document.getElementById('helpToggleIcon');
-    
-    // Always start collapsed (closed)
-    if (helpContent) {
-        helpContent.classList.add('collapsed');
-        toggleIcon.innerHTML = '▶';
-    }
-    
-    // Mark that user has visited (no auto-expand)
-    if (!localStorage.getItem('freelance_has_visited')) {
-        localStorage.setItem('freelance_has_visited', 'true');
-    }
-}
-
-// Event listeners
+// ============================================
+// EVENT LISTENERS
+// ============================================
 function initEventListeners() {
     document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
     document.getElementById('stopTimerBtn')?.addEventListener('click', stopTimer);
+    document.getElementById('resetTimerBtn')?.addEventListener('click', resetTimer);
+    
     document.getElementById('addClientBtn')?.addEventListener('click', openAddClientModal);
-    document.getElementById('saveClientBtn')?.addEventListener('click', addClient);
-    document.getElementById('closeClientModalBtn')?.addEventListener('click', closeClientModal);
-    document.getElementById('createInvoiceBtn')?.addEventListener('click', openCreateInvoiceModal);
-    document.getElementById('generateInvoiceBtn')?.addEventListener('click', generateInvoiceFromTimeEntries);
-    document.getElementById('closeInvoiceModalBtn')?.addEventListener('click', closeInvoiceModal);
-    document.getElementById('invoiceClientSelect')?.addEventListener('change', loadUnpaidEntries);
-    document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
-    document.getElementById('importDataBtn')?.addEventListener('click', () => {
+    document.getElementById('saveClientModalBtn')?.addEventListener('click', saveNewClient);
+    document.getElementById('closeModalBtn')?.addEventListener('click', closeClientModal);
+    
+    document.getElementById('addInvoiceItemBtn')?.addEventListener('click', addInvoiceItem);
+    document.getElementById('previewInvoiceBtn')?.addEventListener('click', previewInvoice);
+    document.getElementById('generatePdfBtn')?.addEventListener('click', generatePDF);
+    document.getElementById('resetInvoiceBtn')?.addEventListener('click', resetInvoiceForm);
+    
+    document.getElementById('timeInvoiceFilter')?.addEventListener('change', () => refreshUnpaidEntriesList());
+    document.getElementById('createTimeInvoiceBtn')?.addEventListener('click', createTimeInvoice);
+    
+    document.getElementById('exportBtn')?.addEventListener('click', exportAllData);
+    document.getElementById('importBtn')?.addEventListener('click', () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
-        input.onchange = (e) => importData(e.target.files[0]);
+        input.onchange = (e) => importDataFile(e.target.files[0]);
         input.click();
     });
+    
+    document.getElementById('clearDataBtn')?.addEventListener('click', clearAllData);
     
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             e.target.style.display = 'none';
         }
     });
+    
+    document.getElementById('timerClientSelect')?.addEventListener('change', function() {
+        const clientId = this.value;
+        if (clientId) {
+            const client = clients.find(c => c.id == clientId);
+            if (client) {
+                document.getElementById('timerHourlyRate').value = `$${client.rate}/hour`;
+            }
+        } else {
+            document.getElementById('timerHourlyRate').value = '';
+        }
+    });
 }
 
-// Initialize app
+// ============================================
+// INITIALIZE APP
+// ============================================
 function init() {
     loadData();
     initTabs();
     initEventListeners();
-    initQuickInvoice();
-    initLanguageSwitcher();
-    checkFirstVisit();
+    initLanguage();
+    renderInvoiceItems();
+    document.getElementById('invIssueDate').value = getTodayDate();
+    // Help section starts closed
+    document.getElementById('helpContent').style.display = 'none';
 }
 
 // Start the app
 init();
+
