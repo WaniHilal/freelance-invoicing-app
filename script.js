@@ -1,5 +1,5 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyA40K-U_kLW4yekvMxHUQrmtHdxnwfuQS8",
+    apiKey: "AIzaSyA4OK-U_klW4yekvMxHUQrmtHdxnwfuQS8",
     authDomain: "freelance-invoicing-app-ef860.firebaseapp.com",
     projectId: "freelance-invoicing-app-ef860",
     storageBucket: "freelance-invoicing-app-ef860.firebasestorage.app",
@@ -10,10 +10,13 @@ const firebaseConfig = {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// Initialize Firebase (ONCE!)
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+console.log("✅ Firebase initialized with correct config");
 // ==========================================
 // 2️⃣ YOUR EXISTING JS CODE GOES BELOW
 // ==========================================
