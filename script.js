@@ -1,11 +1,36 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyA4OK-U_klW4yekvMxHUQrmtHdxnwfuQS8",
+  authDomain: "freelance-invoicing-app-ef860.firebaseapp.com",
+  projectId: "freelance-invoicing-app-ef860",
+  storageBucket: "freelance-invoicing-app-ef860.firebasestorage.app",
+  messagingSenderId: "675069650397",
+  appId: "1:675069650397:web:b06d30d0d8c8d962404234"
+};
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ==========================================
+// 2️⃣ YOUR EXISTING JS CODE GOES BELOW
+// ==========================================
+
+// Example: Your existing code
+// const myButton = document.getElementById('submit');
+// function handleLogin() { ... }
+// etc...
 // ============================================
 // FREELANCE PRO - COMPLETE JAVASCRIPT
+// WITH AUTHENTICATION & ALL FEATURES
 // ============================================
 
 // ============================================
 // DATA STORAGE
 // ============================================
+let currentUser = null;
 let clients = [];
 let timeEntries = [];
 let invoices = [];
@@ -16,7 +41,6 @@ let timerSeconds = 0;
 let activeTimerClientId = null;
 let activeTimerTaskDesc = '';
 let invoiceItems = [{ desc: '', qty: 1, price: 0 }];
-
 // ============================================
 // COMPANY INFO FOR PDF
 // ============================================
@@ -153,6 +177,156 @@ const translations = {
 };
 
 // ============================================
+// FIREBASE AUTHENTICATION FUNCTIONS
+// ============================================
+
+// Auth State Listener
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || user.email.split('@')[0],
+            plan: 'free'
+        };
+        
+        // Load user data from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            clients = data.clients || [];
+            timeEntries = data.timeEntries || [];
+            invoices = data.invoices || [];
+        } else {
+            clients = [];
+            timeEntries = [];
+            invoices = [];
+        }
+        
+        updateAuthUI();
+        refreshAll();
+        closeModals();
+    } else {
+        currentUser = null;
+        clients = [];
+        timeEntries = [];
+        invoices = [];
+        updateAuthUI();
+        refreshAll();
+    }
+});
+
+async function saveUserData() {
+    if (currentUser) {
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            email: currentUser.email,
+            name: currentUser.name,
+            plan: currentUser.plan,
+            clients: clients,
+            timeEntries: timeEntries,
+            invoices: invoices,
+            lastUpdated: new Date()
+        });
+    }
+}
+
+function updateAuthUI() {
+    const authDiv = document.getElementById('authButtons');
+    const userDiv = document.getElementById('userInfo');
+    
+    if (currentUser) {
+        if (authDiv) authDiv.style.display = 'none';
+        if (userDiv) userDiv.style.display = 'flex';
+        document.getElementById('welcomeUser').innerHTML = `👋 ${currentUser.name || currentUser.email}`;
+        
+        const invoiceCount = invoices.length;
+        const isPremium = currentUser.plan === 'premium';
+        const planBadge = document.getElementById('planBadge');
+        
+        if (planBadge) {
+            if (isPremium) {
+                planBadge.innerHTML = '<span class="plan-tag-premium">⭐ PREMIUM</span> Unlimited invoices';
+            } else {
+                const remaining = Math.max(0, 5 - invoiceCount);
+                planBadge.innerHTML = `<span class="plan-tag-free">FREE TRIAL</span> ${remaining}/5 invoices left`;
+            }
+        }
+    } else {
+        if (authDiv) authDiv.style.display = 'flex';
+        if (userDiv) userDiv.style.display = 'none';
+    }
+}
+
+function canCreateInvoice() {
+    if (!currentUser) return false;
+    if (currentUser.plan === 'premium') return true;
+    return invoices.length < 5;
+}
+
+function checkInvoiceLimit() {
+    if (!canCreateInvoice()) {
+        alert('You have reached the free trial limit of 5 invoices. Please upgrade to Premium!');
+        showPremiumBanner();
+        return false;
+    }
+    return true;
+}
+
+async function firebaseSignUp(name, email, password) {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+            name: name,
+            email: email,
+            plan: 'free',
+            clients: [],
+            timeEntries: [],
+            invoices: [],
+            createdAt: new Date()
+        });
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+async function firebaseLogin(email, password) {
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+async function firebaseLogout() {
+    await signOut(auth);
+}
+
+async function upgradeToPremium() {
+    if (currentUser) {
+        currentUser.plan = 'premium';
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            email: currentUser.email,
+            name: currentUser.name,
+            plan: 'premium',
+            clients: clients,
+            timeEntries: timeEntries,
+            invoices: invoices,
+            updatedAt: new Date()
+        }, { merge: true });
+        updateAuthUI();
+        document.getElementById('premiumBanner').style.display = 'none';
+        alert('🎉 You are now a Premium member! Enjoy unlimited invoices!');
+        refreshAll();
+    }
+}
+
+function showPremiumBanner() { 
+    document.getElementById('premiumBanner').style.display = 'flex'; 
+}
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 function getTodayDate() {
@@ -169,33 +343,6 @@ function escapeHtml(str) {
     });
 }
 
-function saveData() {
-    localStorage.setItem('freelance_clients', JSON.stringify(clients));
-    localStorage.setItem('freelance_timeEntries', JSON.stringify(timeEntries));
-    localStorage.setItem('freelance_invoices', JSON.stringify(invoices));
-    localStorage.setItem('freelance_language', currentLanguage);
-}
-
-function loadData() {
-    const savedClients = localStorage.getItem('freelance_clients');
-    const savedEntries = localStorage.getItem('freelance_timeEntries');
-    const savedInvoices = localStorage.getItem('freelance_invoices');
-    const savedLanguage = localStorage.getItem('freelance_language');
-    
-    if (savedClients) clients = JSON.parse(savedClients);
-    if (savedEntries) timeEntries = JSON.parse(savedEntries);
-    if (savedInvoices) invoices = JSON.parse(savedInvoices);
-    if (savedLanguage) currentLanguage = savedLanguage;
-    
-    // New users get empty data (no sample data)
-    if (!savedClients) clients = [];
-    if (!savedEntries) timeEntries = [];
-    if (!savedInvoices) invoices = [];
-    
-    saveData();
-    refreshAll();
-}
-
 // ============================================
 // UI LANGUAGE UPDATE
 // ============================================
@@ -203,7 +350,6 @@ function updateUILanguage() {
     const t = translations[currentLanguage];
     if (!t) return;
     
-    // Header
     const appTitle = document.getElementById('appTitle');
     if (appTitle) appTitle.innerHTML = t.appTitle;
     
@@ -213,7 +359,6 @@ function updateUILanguage() {
     const gettingStarted = document.getElementById('gettingStartedTitle');
     if (gettingStarted) gettingStarted.innerHTML = t.gettingStarted;
     
-    // Buttons
     const exportBtn = document.getElementById('exportBtn');
     if (exportBtn) exportBtn.innerHTML = t.exportData;
     
@@ -226,7 +371,6 @@ function updateUILanguage() {
     const addClientBtn = document.getElementById('addClientBtn');
     if (addClientBtn) addClientBtn.innerHTML = t.addClient;
     
-    // Stats cards
     const statCards = document.querySelectorAll('.stat-card h3');
     if (statCards.length >= 4) {
         statCards[0].innerText = t.totalHours;
@@ -235,7 +379,6 @@ function updateUILanguage() {
         statCards[3].innerText = t.activeProjects;
     }
     
-    // Modal
     const modalTitle = document.querySelector('#clientModal h2');
     if (modalTitle) modalTitle.innerHTML = t.addClient;
     
@@ -252,7 +395,6 @@ function updateUILanguage() {
     const cancelBtn = document.getElementById('closeModalBtn');
     if (cancelBtn) cancelBtn.innerHTML = t.cancel;
     
-    // Table headers
     const invoiceHeaders = document.querySelectorAll('#tab4 .data-table th');
     if (invoiceHeaders.length >= 6) {
         invoiceHeaders[0].innerText = t.invoiceNo;
@@ -327,7 +469,7 @@ function refreshRecentEntries() {
         const t = translations[currentLanguage];
         const recent = [...timeEntries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
         if (recent.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No time entries yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No time entries yet.YouTube前进';
             return;
         }
         tbody.innerHTML = '';
@@ -336,13 +478,13 @@ function refreshRecentEntries() {
             tbody.innerHTML += `
                 <tr>
                     <td>${client?.name || 'Unknown'}</td>
-                    <td>${escapeHtml(entry.description)}</td>
-                    <td>${entry.duration} hrs</td>
-                    <td>$${client?.rate || 0}/hr</td>
-                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td>
-                    <td>${entry.date}</td>
-                    <td>${entry.invoiced ? '✅ Invoiced' : '⏳ Pending'}</td>
-                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">${t.delete}</button></td>
+                    <td>${escapeHtml(entry.description)}</td
+                    <td>${entry.duration} hrs</td
+                    <td>$${client?.rate || 0}/hr</td
+                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td
+                    <td>${entry.date}</td
+                    <td>${entry.invoiced ? '✅ Invoiced' : '⏳ Pending'}</td
+                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">${t.delete}</button></td
                 </tr>
             `;
         });
@@ -354,7 +496,7 @@ function refreshInvoicesTable() {
     if (tbody) {
         const t = translations[currentLanguage];
         if (invoices.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No invoices yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No invoices yet.不求前进';
             return;
         }
         tbody.innerHTML = '';
@@ -364,14 +506,14 @@ function refreshInvoicesTable() {
                 <tr>
                     <td>${inv.invoiceNumber}</td>
                     <td>${client?.name || inv.clientName || 'Unknown'}</td>
-                    <td>${inv.currency || '$'}${inv.amount.toFixed(2)}</td>
-                    <td><span class="${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? t.paid : t.unpaid}</span></td>
-                    <td>${inv.date}</td>
+                    <td>${inv.currency || '$'}${inv.amount.toFixed(2)}</td
+                    <td><span class="${inv.status === 'paid' ? 'badge-paid' : 'badge-unpaid'}">${inv.status === 'paid' ? t.paid : t.unpaid}</span></td
+                    <td>${inv.date}</td
                     <td>
                         <button class="btn-primary" onclick="viewInvoice(${inv.id})" style="margin-right:5px">${t.view}</button>
                         <button class="btn-primary" onclick="downloadInvoicePDF(${inv.id})" style="background:#00d25b">${t.pdf}</button>
                         ${inv.status === 'unpaid' ? `<button class="btn-primary" onclick="markInvoicePaid(${inv.id})" style="margin-left:5px">${t.markPaid}</button>` : ''}
-                    </td>
+                    </td
                 </tr>
             `;
         });
@@ -383,17 +525,17 @@ function refreshClientsTable() {
     if (tbody) {
         const t = translations[currentLanguage];
         if (clients.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No clients added yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No clients added yet.不求前进';
             return;
         }
         tbody.innerHTML = '';
         clients.forEach(c => {
             tbody.innerHTML += `
                 <tr>
-                    <td>${escapeHtml(c.name)}</td>
-                    <td>${c.email}</td>
-                    <td>$${c.rate}/hour</td>
-                    <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t.delete}</button></td>
+                    <td>${escapeHtml(c.name)}</td
+                    <td>${c.email}</td
+                    <td>$${c.rate}/hour</td
+                    <td><button class="btn-danger" onclick="deleteClient(${c.id})">${t.delete}</button></td
                 </tr>
             `;
         });
@@ -404,7 +546,7 @@ function refreshAllEntriesTable() {
     const tbody = document.getElementById('allEntriesTableBody');
     if (tbody) {
         if (timeEntries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No time entries yet.</td></tr>';
+            tbody.innerHTML = '<td><td colspan="8" class="text-center">No time entries yet.不求前进</tbody>';
             return;
         }
         tbody.innerHTML = '';
@@ -413,13 +555,13 @@ function refreshAllEntriesTable() {
             tbody.innerHTML += `
                 <tr>
                     <td>${client?.name || 'Unknown'}</td>
-                    <td>${escapeHtml(entry.description)}</td>
-                    <td>${entry.duration} hrs</td>
-                    <td>$${client?.rate || 0}/hr</td>
-                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td>
-                    <td>${entry.date}</td>
-                    <td>${entry.invoiced ? '✅ Yes' : '❌ No'}</td>
-                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">Delete</button></td>
+                    <td>${escapeHtml(entry.description)}</td
+                    <td>${entry.duration} hrs</td
+                    <td>$${client?.rate || 0}/hr</td
+                    <td>$${(entry.duration * (client?.rate || 0)).toFixed(2)}</td
+                    <td>${entry.date}</td
+                    <td>${entry.invoiced ? '✅ Yes' : '❌ No'}</td
+                    <td><button class="btn-danger" onclick="deleteTimeEntry(${entry.id})">Delete</button></td
                 </tr>
             `;
         });
@@ -518,7 +660,7 @@ function stopTimer() {
     };
     
     timeEntries.push(newEntry);
-    saveData();
+    saveUserData();
     refreshAll();
     
     resetTimerUI();
@@ -593,7 +735,7 @@ function saveNewClient() {
         email: email,
         rate: rate
     });
-    saveData();
+    saveUserData();
     refreshAll();
     closeClientModal();
 }
@@ -601,7 +743,7 @@ function saveNewClient() {
 function deleteClient(id) {
     if (confirm('Delete this client?')) {
         clients = clients.filter(c => c.id !== id);
-        saveData();
+        saveUserData();
         refreshAll();
     }
 }
@@ -609,7 +751,7 @@ function deleteClient(id) {
 function deleteTimeEntry(id) {
     if (confirm('Delete this time entry?')) {
         timeEntries = timeEntries.filter(e => e.id !== id);
-        saveData();
+        saveUserData();
         refreshAll();
     }
 }
@@ -639,6 +781,8 @@ function createTimeInvoice() {
         totalAmount += e.duration * client.rate;
     });
     
+    if (!checkInvoiceLimit()) return;
+    
     const invoiceNumber = `INV-${String(invoices.length + 1).padStart(3, '0')}`;
     const newInvoice = {
         id: Date.now(),
@@ -654,7 +798,7 @@ function createTimeInvoice() {
     
     invoices.push(newInvoice);
     selectedEntries.forEach(e => { e.invoiced = true; });
-    saveData();
+    saveUserData();
     refreshAll();
     alert(`Invoice ${invoiceNumber} created for $${totalAmount.toFixed(2)}`);
     
@@ -667,7 +811,7 @@ function markInvoicePaid(id) {
     const invoice = invoices.find(i => i.id === id);
     if (invoice) {
         invoice.status = 'paid';
-        saveData();
+        saveUserData();
         refreshInvoicesTable();
         alert(`Invoice ${invoice.invoiceNumber} marked as paid.`);
     }
@@ -761,6 +905,8 @@ function previewInvoice() {
 }
 
 function generatePDF() {
+    if (!checkInvoiceLimit()) return;
+    
     const clientName = document.getElementById('invClientName').value;
     if (!clientName) {
         alert('Please enter client name');
@@ -897,7 +1043,7 @@ function generatePDF() {
             description: validItems.map(i => i.desc).join(', '),
             currency: currencySymbol
         });
-        saveData();
+        saveUserData();
         refreshInvoicesTable();
         alert('Invoice saved!');
     }
@@ -998,14 +1144,16 @@ async function downloadInvoicePDF(invoiceId) {
 // CLEAR ALL DATA FUNCTION
 // ============================================
 function clearAllData() {
+    if (!currentUser) {
+        alert('Please log in to clear your data');
+        return;
+    }
     if (confirm('⚠️ WARNING: This will permanently delete ALL your data including clients, time entries, and invoices. This action cannot be undone. Are you sure?')) {
         if (confirm('Are you ABSOLUTELY sure? All your data will be lost forever!')) {
             clients = [];
             timeEntries = [];
             invoices = [];
-            localStorage.removeItem('freelance_clients');
-            localStorage.removeItem('freelance_timeEntries');
-            localStorage.removeItem('freelance_invoices');
+            saveUserData();
             resetTimerUI();
             refreshAll();
             invoiceItems = [{ desc: '', qty: 1, price: 0 }];
@@ -1020,6 +1168,10 @@ function clearAllData() {
 // EXPORT/IMPORT FUNCTIONS
 // ============================================
 function exportAllData() {
+    if (!currentUser) {
+        alert('Please log in to export your data');
+        return;
+    }
     const data = { clients, timeEntries, invoices };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1032,6 +1184,10 @@ function exportAllData() {
 }
 
 function importDataFile(file) {
+    if (!currentUser) {
+        alert('Please log in to import data');
+        return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
@@ -1039,7 +1195,7 @@ function importDataFile(file) {
             if (data.clients) clients = data.clients;
             if (data.timeEntries) timeEntries = data.timeEntries;
             if (data.invoices) invoices = data.invoices;
-            saveData();
+            saveUserData();
             refreshAll();
             alert('Data imported successfully!');
         } catch (err) {
@@ -1096,6 +1252,13 @@ function toggleHelp() {
 }
 
 // ============================================
+// MODAL FUNCTIONS
+// ============================================
+function closeModals() {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
+
+// ============================================
 // EVENT LISTENERS
 // ============================================
 function initEventListeners() {
@@ -1126,9 +1289,23 @@ function initEventListeners() {
     
     document.getElementById('clearDataBtn')?.addEventListener('click', clearAllData);
     
+    document.getElementById('loginBtn')?.addEventListener('click', () => document.getElementById('loginModal').style.display = 'flex');
+    document.getElementById('signupBtn')?.addEventListener('click', () => document.getElementById('signupModal').style.display = 'flex');
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => { 
+    await firebaseLogout(); 
+    location.reload(); 
+});
+    document.getElementById('upgradeBtn')?.addEventListener('click', showPremiumBanner);
+    document.getElementById('confirmUpgradeBtn')?.addEventListener('click', upgradeToPremium);
+    document.getElementById('closePremiumBanner')?.addEventListener('click', () => document.getElementById('premiumBanner').style.display = 'none');
+    
+    document.getElementById('switchToSignup')?.addEventListener('click', (e) => { e.preventDefault(); closeModals(); document.getElementById('signupModal').style.display = 'flex'; });
+    document.getElementById('switchToLogin')?.addEventListener('click', (e) => { e.preventDefault(); closeModals(); document.getElementById('loginModal').style.display = 'flex'; });
+    
+    document.querySelectorAll('.close-modal').forEach(btn => btn.onclick = closeModals);
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
-            e.target.style.display = 'none';
+            closeModals();
         }
     });
     
@@ -1148,17 +1325,95 @@ function initEventListeners() {
 // ============================================
 // INITIALIZE APP
 // ============================================
+// ============================================
+// INITIALIZE APP
+// ============================================
 function init() {
-    loadData();
+    // Firebase auth state listener already handles user loading
+    // No need for loadUsers() anymore
+    
     initTabs();
     initEventListeners();
     initLanguage();
     renderInvoiceItems();
-    document.getElementById('invIssueDate').value = getTodayDate();
+    
+    const todayInput = document.getElementById('invIssueDate');
+    if (todayInput) todayInput.value = getTodayDate();
+    
     // Help section starts closed
-    document.getElementById('helpContent').style.display = 'none';
+    const helpContent = document.getElementById('helpContent');
+    if (helpContent) helpContent.style.display = 'none';
+    
+    console.log("✅ App initialized with Firebase!");
+}
+// ============================================
+// MANUAL FIREBASE AUTH HANDLERS
+// ============================================
+
+// Sign Up Form Handler
+const signupFormElement = document.getElementById('signupForm');
+if (signupFormElement) {
+    signupFormElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirmPassword').value;
+        
+        if (!name || !email || !password) {
+            alert('Please fill all fields');
+            return;
+        }
+        if (password !== confirm) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        console.log("📝 Signing up:", email);
+        const result = await firebaseSignUp(name, email, password);
+        
+        if (result.success) {
+            alert('✅ Account created successfully!');
+            closeModals();
+        } else {
+            alert('❌ Sign up failed: ' + result.error);
+        }
+    });
+    console.log("✅ Sign up form handler attached");
 }
 
+// Login Form Handler
+const loginFormElement = document.getElementById('loginForm');
+if (loginFormElement) {
+    loginFormElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        console.log("🔐 Logging in:", email);
+        const result = await firebaseLogin(email, password);
+        
+        if (result.success) {
+            alert('✅ Logged in successfully!');
+            closeModals();
+        } else {
+            alert('❌ Login failed: ' + result.error);
+        }
+    });
+    console.log("✅ Login form handler attached");
+}
+
+// Logout Button Handler
+const logoutButton = document.getElementById('logoutBtn');
+if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+        await firebaseLogout();
+        alert('Logged out');
+        location.reload();
+    });
+    console.log("✅ Logout button handler attached");
+}
 // Start the app
 init();
-

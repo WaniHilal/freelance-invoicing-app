@@ -1,6 +1,5 @@
-
 /* ============================================ */
-/* FREELANCE PRO - COMPLETE STYLESHEET
+/* FREELANCE PRO - COMPLETE STYLESHEET (CLEAN)
 /* ============================================ */
 
 /* -------------------------------------------- */
@@ -13,7 +12,7 @@
 }
 
 body {
-    font-family: 'Segoe UI Symbol', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     padding: 20px;
@@ -75,30 +74,76 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
-    font-family: Segoe UI Symbol;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.header-buttons {
+.header-right {
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
+/* Header Buttons Layout */
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+#userInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+/* -------------------------------------------- */
+/* BUTTON STYLES - CLEAN & CONSISTENT
+/* -------------------------------------------- */
+
+/* Secondary Button (Export, Import, Cancel, etc.) */
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    background: #6c757d !important;
+    color: white !important;
     border: none;
-    padding: 10px 18px;
-    border-radius: 30px;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.35);
-    transform: translateY(-2px);
+    background: #5a6268 !important;
+    transform: translateY(-1px);
+}
+
+/* Primary Button (Sign Up, Save, Generate PDF) */
+.btn-primary {
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1557b0, #0a3570);
+    transform: translateY(-1px);
 }
 
 /* Clear Data Button */
@@ -109,7 +154,119 @@ body {
 
 .clear-btn:hover {
     background: #c82333 !important;
-    transform: translateY(-2px);
+}
+
+/* Premium Button */
+.btn-premium {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Timer Buttons */
+.timer-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.start-btn {
+    background: #28a745;
+    color: white;
+}
+
+.start-btn:hover {
+    background: #218838;
+    transform: scale(1.02);
+}
+
+.stop-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.stop-btn:hover {
+    background: #c82333;
+    transform: scale(1.02);
+}
+
+.reset-btn {
+    background: #ffc107;
+    color: #333;
+}
+
+.reset-btn:hover {
+    background: #e0a800;
+    transform: scale(1.02);
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* -------------------------------------------- */
+/* QUICK INVOICE - ADD ITEM BUTTON
+/* -------------------------------------------- */
+#addInvoiceItemBtn {
+    background: #6c757d !important;
+    color: white !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+#addInvoiceItemBtn:hover {
+    background: #5a6268 !important;
+}
+
+/* -------------------------------------------- */
+/* ACTION BUTTONS
+/* -------------------------------------------- */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+/* -------------------------------------------- */
+/* PLAN BADGE
+/* -------------------------------------------- */
+.plan-badge {
+    background: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.plan-tag-free {
+    background: #ffc107;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
+}
+
+.plan-tag-premium {
+    background: #00d25b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
 }
 
 /* -------------------------------------------- */
@@ -144,7 +301,6 @@ body {
     display: block;
 }
 
-/* Help Cards */
 .help-card {
     background: #f8f9fa;
     padding: 16px;
@@ -165,7 +321,6 @@ body {
     color: #555;
     line-height: 1.4;
     padding-left: 20px;
-    position: relative;
 }
 
 .help-quickstart {
@@ -178,11 +333,6 @@ body {
 .help-quickstart h3 {
     color: #1a73e8;
     margin-bottom: 12px;
-}
-
-.help-quickstart p {
-    margin: 8px 0;
-    line-height: 1.5;
 }
 
 .help-faq {
@@ -206,8 +356,6 @@ body {
 
 .faq-item:last-child {
     border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
 }
 
 .help-tip {
@@ -216,7 +364,6 @@ body {
     border-radius: 12px;
     color: #1a73e8;
     font-weight: 500;
-    line-height: 1.5;
 }
 
 /* -------------------------------------------- */
@@ -235,12 +382,11 @@ body {
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .stat-card h3 {
@@ -287,7 +433,6 @@ body {
 .tab-btn.active {
     background: #1a73e8;
     color: white;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
 }
 
 /* -------------------------------------------- */
@@ -303,14 +448,8 @@ body {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .panel.active-panel {
@@ -338,11 +477,6 @@ body {
     padding-left: 12px;
 }
 
-.form-section > p {
-    color: #666;
-    margin-bottom: 20px;
-}
-
 .input-group {
     margin-bottom: 20px;
 }
@@ -362,7 +496,6 @@ body {
     border-radius: 10px;
     font-size: 14px;
     transition: all 0.3s ease;
-    font-family: Segoe UI Symbol;
 }
 
 .form-control:focus {
@@ -422,17 +555,13 @@ body {
     border: none;
 }
 
-.timer-section .form-control[readonly] {
-    background: rgba(255, 255, 255, 0.7);
-}
-
 .timer-display-box {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
     padding: 20px;
     text-align: center;
     font-size: 48px;
-    font-family: 'Segoe UI Symbol', monospace;
+    font-family: monospace;
     font-weight: bold;
     letter-spacing: 5px;
 }
@@ -443,52 +572,6 @@ body {
     justify-content: center;
     margin-top: 25px;
     flex-wrap: wrap;
-}
-
-.timer-btn {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 50px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.start-btn {
-    background: #28a745;
-    color: white;
-}
-
-.start-btn:hover {
-    background: #218838;
-    transform: scale(1.02);
-}
-
-.stop-btn {
-    background: #dc3545;
-    color: white;
-}
-
-.stop-btn:hover {
-    background: #c82333;
-    transform: scale(1.02);
-}
-
-.reset-btn {
-    background: #ffc107;
-    color: #333;
-}
-
-.reset-btn:hover {
-    background: #e0a800;
-    transform: scale(1.02);
-}
-
-.timer-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
 }
 
 /* -------------------------------------------- */
@@ -511,7 +594,6 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
-    font-family: Segoe UI Symbol;
 }
 
 .item-row .item-desc {
@@ -536,57 +618,10 @@ body {
     border-radius: 8px;
     padding: 8px 15px;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .item-row button:hover {
     background: #c82333;
-    transform: scale(1.02);
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
-/* -------------------------------------------- */
-/* ACTION BUTTONS
-/* -------------------------------------------- */
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    margin: 25px 0;
-    flex-wrap: wrap;
-}
-
-.btn-primary {
-    background: #1a73e8;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: #1557b0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
 }
 
 /* -------------------------------------------- */
@@ -598,11 +633,6 @@ body {
     background: #f8f9fa;
     border-radius: 15px;
     border: 1px solid #e0e0e0;
-}
-
-.preview-area h3 {
-    color: #1a73e8;
-    margin-bottom: 15px;
 }
 
 .preview-content {
@@ -640,7 +670,6 @@ body {
     background: #f8f9fa;
     font-weight: 600;
     color: #333;
-    white-space: nowrap;
 }
 
 .data-table tr:hover {
@@ -683,7 +712,6 @@ body {
     border-radius: 12px;
     padding: 15px;
     margin-bottom: 12px;
-    transition: all 0.2s ease;
 }
 
 .entry-item:hover {
@@ -727,18 +755,6 @@ body {
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
-    animation: modalFadeIn 0.2s ease;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
 }
 
 .modal-content h2 {
@@ -756,6 +772,118 @@ body {
     flex: 1;
 }
 
+.close-modal {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.close-modal:hover {
+    color: #dc3545;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.modal-note {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.modal-note a {
+    color: #1a73e8;
+    text-decoration: none;
+}
+
+/* -------------------------------------------- */
+/* PREMIUM BANNER
+/* -------------------------------------------- */
+.premium-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.premium-content {
+    background: white;
+    padding: 30px;
+    border-radius: 24px;
+    max-width: 700px;
+    width: 90%;
+    position: relative;
+    text-align: center;
+}
+
+.close-banner {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.premium-plans {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.plan-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 16px;
+    width: 250px;
+    text-align: center;
+}
+
+.plan-card.featured {
+    border: 2px solid #1a73e8;
+    background: white;
+    transform: scale(1.02);
+}
+
+.plan-card .price {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.plan-card .price span {
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.plan-card ul {
+    list-style: none;
+    margin: 15px 0;
+}
+
+.plan-card li {
+    padding: 5px 0;
+    font-size: 0.85rem;
+}
+
+.current-plan {
+    background: #e0e0e0;
+    cursor: default;
+    opacity: 0.7;
+}
+
 /* -------------------------------------------- */
 /* VIDEO TUTORIAL & FOOTER
 /* -------------------------------------------- */
@@ -766,10 +894,6 @@ body {
     margin: 30px 0 20px;
     text-align: center;
     color: white;
-}
-
-.video-tutorial h2 {
-    margin-bottom: 10px;
 }
 
 footer {
@@ -867,7 +991,6 @@ footer {
     .data-table td {
         padding: 8px 10px;
         font-size: 12px;
-        white-space: nowrap;
     }
     
     .modal-content {
@@ -875,12 +998,27 @@ footer {
         width: 95%;
     }
     
-    .header-buttons {
+    .header-buttons,
+    .auth-buttons,
+    #userInfo {
+        flex-direction: column;
         width: 100%;
     }
     
-    .header-buttons button {
-        flex: 1;
+    .header-buttons button,
+    .auth-buttons button,
+    #userInfo button {
+        width: 100%;
+    }
+    
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .premium-plans {
+        flex-direction: column;
+        align-items: center;
     }
 }
 
@@ -895,14 +1033,6 @@ footer {
     
     .help-content {
         padding: 15px;
-    }
-    
-    .header-buttons {
-        flex-direction: column;
-    }
-    
-    .header-buttons button {
-        width: 100%;
     }
 }
 
@@ -934,5 +1064,7 @@ footer {
     color: #333;
 }
 
-
-
+#welcomeUser {
+    font-weight: 500;
+    color: #333;
+}

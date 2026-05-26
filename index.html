@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,24 +19,65 @@
                     <h1 id="appTitle">💰 Freelance Pro</h1>
                     <p id="appSubtitle">Complete Invoicing + Time Tracking for Freelancers</p>
                 </div>
-                <div class="language-selector">
-                    <label>🌐 Language:</label>
-                    <select id="languageSelect">
-                        <option value="en">🇺🇸 English</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="hi">🇮🇳 हिंदी</option>
-                        <option value="ar">🇸🇦 العربية</option>
-                        <option value="zh">🇨🇳 中文</option>
-                        <option value="ru">🇷🇺 Русский</option>
-                    </select>
+                <div class="header-right">
+                    <div class="plan-badge" id="planBadge"></div>
+                    <div class="language-selector">
+                        <label>🌐 Language:</label>
+                        <select id="languageSelect">
+                            <option value="en">🇺🇸 English</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="hi">🇮🇳 हिंदी</option>
+                            <option value="ar">🇸🇦 العربية</option>
+                            <option value="zh">🇨🇳 中文</option>
+                            <option value="ru">🇷🇺 Русский</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+            
+            <!-- ALWAYS VISIBLE - Data Management Buttons -->
             <div class="header-buttons">
                 <button id="exportBtn" class="btn-secondary">📤 Export Data</button>
                 <button id="importBtn" class="btn-secondary">📥 Import Data</button>
                 <button id="clearDataBtn" class="btn-secondary clear-btn">🗑️ Clear All Data</button>
+            </div>
+            
+            <!-- AUTH BUTTONS (visible when not logged in) -->
+            <div class="auth-buttons" id="authButtons">
+                <button id="loginBtn" class="btn-secondary">🔐 Log In</button>
+                <button id="signupBtn" class="btn-primary">📝 Sign Up Free</button>
+            </div>
+            
+            <!-- USER INFO (visible when logged in) -->
+            <div id="userInfo" style="display: none;">
+                <span id="welcomeUser"></span>
+                <button id="upgradeBtn" class="btn-premium">⭐ Upgrade</button>
+                <button id="logoutBtn" class="btn-secondary">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Premium Upgrade Banner -->
+        <div id="premiumBanner" class="premium-banner" style="display: none;">
+            <div class="premium-content">
+                <button id="closePremiumBanner" class="close-banner">&times;</button>
+                <h2>⭐ Upgrade to Premium ⭐</h2>
+                <p>Unlock unlimited invoices and premium features!</p>
+                <div class="premium-plans">
+                    <div class="plan-card">
+                        <h4>Free</h4>
+                        <div class="price">$0</div>
+                        <ul><li>✓ Up to 5 invoices</li><li>✓ Time tracking</li><li>✓ Basic reports</li></ul>
+                        <button class="btn-outline current-plan">Current Plan</button>
+                    </div>
+                    <div class="plan-card featured">
+                        <h4>Premium</h4>
+                        <div class="price">$9<span>/month</span></div>
+                        <ul><li>✓ Unlimited invoices</li><li>✓ All features</li><li>✓ Priority support</li></ul>
+                        <button id="confirmUpgradeBtn" class="btn-primary">Upgrade Now</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -107,23 +147,21 @@
                 <!-- FAQ Section -->
                 <div class="help-faq">
                     <h4>❓ Frequently Asked Questions</h4>
-                    <div class="faq-item"><strong>🔹 Is my data safe?</strong> ✅ Yes! All data is stored locally in your browser. We never see or store your data on any server. Use the Export button to create backups of your data.</div>
-                    <div class="faq-item"><strong>🔹 Can I use this on my phone?</strong> ✅ Yes! The app is fully responsive and works on mobile phones, tablets, and computers. The layout automatically adjusts to your screen size.</div>
-                    <div class="faq-item"><strong>🔹 Do I need an account?</strong> ✅ No! You can use the app immediately without signing up. All data saves automatically to your browser's local storage.</div>
-                    <div class="faq-item"><strong>🔹 What if I clear my browser cache?</strong> ⚠️ Your data will be lost! Always use the Export button to backup your data regularly. You can then Import the backup file to restore your data.</div>
-                    <div class="faq-item"><strong>🔹 Can I change currency for existing invoices?</strong> ✅ Currency is set when creating the invoice. Existing invoices keep their original currency. Create a new invoice for different currencies.</div>
-                    <div class="faq-item"><strong>🔹 How do I add multiple items to one invoice?</strong> ✅ Click "+ Add Item" button in the Quick Invoice tab as many times as needed. Each item appears as a separate row in the invoice.</div>
-                    <div class="faq-item"><strong>🔹 Is there a limit on how many invoices I can create?</strong> ✅ No! You can create unlimited invoices, clients, and time entries. All data is stored locally in your browser.</div>
+                    <div class="faq-item"><strong>🔹 Is my data safe?</strong> ✅ Yes! Create an account for secure private storage.</div>
+                    <div class="faq-item"><strong>🔹 Free trial limit?</strong> ✅ 5 free invoices, then upgrade to Premium.</div>
+                    <div class="faq-item"><strong>🔹 Do I need an account?</strong> ✅ Yes, sign up for free to save your data!</div>
+                    <div class="faq-item"><strong>🔹 What if I clear my browser cache?</strong> ⚠️ Your data will be lost! Always use Export backup.</div>
+                    <div class="faq-item"><strong>🔹 Can I change currency for existing invoices?</strong> ✅ Currency is set when creating the invoice.</div>
+                    <div class="faq-item"><strong>🔹 How do I add multiple items to one invoice?</strong> ✅ Click "+ Add Item" button as many times as needed.</div>
                 </div>
 
                 <!-- Need Help Section -->
                 <div class="help-support">
                     <div class="help-tip">
                         💡 <strong>Need Help? Try these steps first:</strong>
-                        <br>• Refresh the page (Ctrl + F5 for hard refresh)
-                        <br>• Check if you filled all required fields (marked with *)
+                        <br>• Sign up for a free account to save your data
+                        <br>• Upgrade to Premium for unlimited invoices
                         <br>• Export your data as backup before making major changes
-                        <br>• Clear your browser cache if the app is behaving strangely
                         <br>• Contact support: <strong>hello@freelancepro.com</strong>
                     </div>
                 </div>
@@ -134,22 +172,10 @@
         <!-- STATS DASHBOARD -->
         <!-- ============================================ -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <h3 id="totalHoursLabel">Total Hours</h3>
-                <div class="value" id="totalHours">0</div>
-            </div>
-            <div class="stat-card">
-                <h3 id="unpaidAmountLabel">Unpaid Amount</h3>
-                <div class="value" id="unpaidAmount">$0</div>
-            </div>
-            <div class="stat-card">
-                <h3 id="paidAmountLabel">Paid Amount</h3>
-                <div class="value" id="paidAmount">$0</div>
-            </div>
-            <div class="stat-card">
-                <h3 id="activeProjectsLabel">Active Projects</h3>
-                <div class="value" id="activeProjects">0</div>
-            </div>
+            <div class="stat-card"><h3 id="totalHoursLabel">Total Hours</h3><div class="value" id="totalHours">0</div></div>
+            <div class="stat-card"><h3 id="unpaidAmountLabel">Unpaid Amount</h3><div class="value" id="unpaidAmount">$0</div></div>
+            <div class="stat-card"><h3 id="paidAmountLabel">Paid Amount</h3><div class="value" id="paidAmount">$0</div></div>
+            <div class="stat-card"><h3 id="activeProjectsLabel">Active Projects</h3><div class="value" id="activeProjects">0</div></div>
         </div>
 
         <!-- ============================================ -->
@@ -398,7 +424,7 @@
         </div>
 
         <footer>
-            <p>© 2025 Freelance Pro | All data stored locally in your browser</p>
+            <p>© 2025 Freelance Pro | Secure private account</p>
         </footer>
     </div>
 
@@ -407,6 +433,7 @@
     <!-- ============================================ -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
+            <span class="close-modal">&times;</span>
             <h2>➕ Add New Client</h2>
             <div class="form-group">
                 <label>Client Name *</label>
@@ -427,7 +454,58 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- ============================================ -->
+    <!-- LOGIN MODAL -->
+    <!-- ============================================ -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>🔐 Log In</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-primary btn-full">Log In</button>
+                <p class="modal-note">Don't have an account? <a href="#" id="switchToSignup">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SIGNUP MODAL -->
+    <!-- ============================================ -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>📝 Sign Up - Free Trial</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signupEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-primary btn-full">Start Free Trial</button>
+                <p class="modal-note">Already have an account? <a href="#" id="switchToLogin">Log in</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
-
