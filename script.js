@@ -1,10 +1,10 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyA4OK-U_klW4yekvMxHUQrmtHdxnwfuQS8",
-  authDomain: "freelance-invoicing-app-ef860.firebaseapp.com",
-  projectId: "freelance-invoicing-app-ef860",
-  storageBucket: "freelance-invoicing-app-ef860.firebasestorage.app",
-  messagingSenderId: "675069650397",
-  appId: "1:675069650397:web:b06d30d0d8c8d962404234"
+    apiKey: "AIzaSyA40K-U_kLW4yekvMxHUQrmtHdxnwfuQS8",
+    authDomain: "freelance-invoicing-app-ef860.firebaseapp.com",
+    projectId: "freelance-invoicing-app-ef860",
+    storageBucket: "freelance-invoicing-app-ef860.firebasestorage.app",
+    messagingSenderId: "675069650397",
+    appId: "1:675069650397:web:b06d30d0d8c8d962404234"
 };
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -826,33 +826,70 @@ function viewInvoice(id) {
 // ============================================
 // QUICK INVOICE FUNCTIONS
 // ============================================
+// ============================================
+// QUICK INVOICE FUNCTIONS (FIXED)
+// ============================================
+
 function renderInvoiceItems() {
     const container = document.getElementById('invoiceItemsContainer');
-    if (container) {
-        container.innerHTML = '';
-        invoiceItems.forEach((item, idx) => {
-            container.innerHTML += `
-                <div class="item-row" data-index="${idx}">
-                    <input type="text" class="item-desc" placeholder="Description" value="${escapeHtml(item.desc)}" onchange="updateInvoiceItem(${idx}, 'desc', this.value)">
-                    <input type="number" class="item-qty" placeholder="Qty" value="${item.qty}" onchange="updateInvoiceItem(${idx}, 'qty', parseFloat(this.value) || 0)">
-                    <input type="number" class="item-price" placeholder="Price" value="${item.price}" onchange="updateInvoiceItem(${idx}, 'price', parseFloat(this.value) || 0)">
-                    <button class="remove-item-btn" onclick="removeInvoiceItem(${idx})">✕</button>
-                </div>
-            `;
+    if (!container) {
+        console.error("Container not found");
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    invoiceItems.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.setAttribute('data-index', idx);
+        row.innerHTML = `
+            <input type="text" class="item-desc" placeholder="Description" value="${escapeHtml(item.desc || '')}" data-index="${idx}" data-field="desc">
+            <input type="number" class="item-qty" placeholder="Qty" value="${item.qty || 1}" data-index="${idx}" data-field="qty" step="1">
+            <input type="number" class="item-price" placeholder="Price" value="${item.price || 0}" data-index="${idx}" data-field="price" step="0.01">
+            <button class="remove-item-btn" data-index="${idx}">✕</button>
+        `;
+        container.appendChild(row);
+    });
+    
+    // Attach event listeners to new inputs
+    document.querySelectorAll('.item-desc, .item-qty, .item-price').forEach(input => {
+        input.addEventListener('input', function(e) {
+            const idx = parseInt(this.getAttribute('data-index'));
+            const field = this.getAttribute('data-field');
+            let value = this.value;
+            
+            if (field === 'qty') value = parseInt(value) || 1;
+            if (field === 'price') value = parseFloat(value) || 0;
+            
+            if (invoiceItems[idx]) {
+                invoiceItems[idx][field] = value;
+            }
         });
-    }
-}
-
-function updateInvoiceItem(index, field, value) {
-    if (invoiceItems[index]) {
-        invoiceItems[index][field] = value;
-    }
+    });
+    
+    // Attach click events to remove buttons
+    document.querySelectorAll('.remove-item-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const idx = parseInt(this.getAttribute('data-index'));
+            if (invoiceItems.length > 1) {
+                invoiceItems.splice(idx, 1);
+            } else {
+                invoiceItems[0] = { desc: '', qty: 1, price: 0 };
+            }
+            renderInvoiceItems();
+        });
+    });
 }
 
 function addInvoiceItem() {
     invoiceItems.push({ desc: '', qty: 1, price: 0 });
     renderInvoiceItems();
 }
+
+// Make functions global
+window.addInvoiceItem = addInvoiceItem;
+window.renderInvoiceItems = renderInvoiceItems;
 
 function removeInvoiceItem(index) {
     if (invoiceItems.length > 1) {
@@ -1242,12 +1279,17 @@ function initTabs() {
 function toggleHelp() {
     const content = document.getElementById('helpContent');
     const icon = document.getElementById('helpIcon');
+    
+    console.log("Toggle help clicked", content, icon); // Debug log
+    
+    if (!content) return;
+    
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
-        icon.innerHTML = '▼';
+        if (icon) icon.innerHTML = '▲';
     } else {
         content.style.display = 'none';
-        icon.innerHTML = '▶';
+        if (icon) icon.innerHTML = '▼';
     }
 }
 
@@ -1417,3 +1459,4 @@ if (logoutButton) {
 }
 // Start the app
 init();
+window.toggleHelp = toggleHelp;
