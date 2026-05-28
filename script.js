@@ -48,7 +48,7 @@ let invoiceItems = [{ desc: '', qty: 1, price: 0 }];
 // COMPANY INFO FOR PDF
 // ============================================
 const companyInfo = {
-    name: 'Freelance Pro',
+    name: 'Business Invoicing Pro',
     email: '',
     phone: '',
     address: '',
@@ -185,8 +185,8 @@ function getPdfCurrency(original) {
 // ============================================
 const translations = {
     en: {
-        appTitle: '💰 Freelance Pro',
-        appSubtitle: 'Complete Invoicing + Time Tracking for Freelancers',
+        appTitle: '💰 Business Invoicing Pro',
+        appSubtitle: 'Complete Invoicing + Time Tracking for Businesses',
         gettingStarted: '📖 Getting Started Guide - Complete Instructions',
         exportData: '📤 Export Data',
         importData: '📥 Import Data',
