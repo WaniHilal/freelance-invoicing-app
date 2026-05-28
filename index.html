@@ -21,6 +21,17 @@
                 </div>
                 <div class="header-right">
                     <div class="plan-badge" id="planBadge"></div>
+                </div>
+            </div>
+            
+            <div class="header-top">
+                <div class="header-buttons">
+                    <button id="exportBtn" class="btn-secondary">📤 Export Data</button>
+                    <button id="importBtn" class="btn-secondary">📥 Import Data</button>
+                    <button id="clearDataBtn" class="btn-secondary clear-btn">🗑️ Clear All Data</button>
+                </div>
+                
+                <div class="header-right-controls">
                     <div class="language-selector">
                         <label>🌐 Language:</label>
                         <select id="languageSelect">
@@ -34,27 +45,18 @@
                             <option value="ru">🇷🇺 Русский</option>
                         </select>
                     </div>
+                    
+                    <div class="auth-buttons" id="authButtons">
+                        <button id="loginBtn" class="btn-secondary">🔐 Log In</button>
+                        <button id="signupBtn" class="btn-primary">📝 Sign Up Free</button>
+                    </div>
+                    
+                    <div id="userInfo" style="display: none;">
+                        <span id="welcomeUser"></span>
+                        <button id="upgradeBtn" class="btn-premium">⭐ Upgrade</button>
+                        <button id="logoutBtn" class="btn-secondary">🚪 Logout</button>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- ALWAYS VISIBLE - Data Management Buttons -->
-            <div class="header-buttons">
-                <button id="exportBtn" class="btn-secondary">📤 Export Data</button>
-                <button id="importBtn" class="btn-secondary">📥 Import Data</button>
-                <button id="clearDataBtn" class="btn-secondary clear-btn">🗑️ Clear All Data</button>
-            </div>
-            
-            <!-- AUTH BUTTONS (visible when not logged in) -->
-            <div class="auth-buttons" id="authButtons">
-                <button id="loginBtn" class="btn-secondary">🔐 Log In</button>
-                <button id="signupBtn" class="btn-primary">📝 Sign Up Free</button>
-            </div>
-            
-            <!-- USER INFO (visible when logged in) -->
-            <div id="userInfo" style="display: none;">
-                <span id="welcomeUser"></span>
-                <button id="upgradeBtn" class="btn-premium">⭐ Upgrade</button>
-                <button id="logoutBtn" class="btn-secondary">🚪 Logout</button>
             </div>
         </div>
 
@@ -68,21 +70,24 @@
                     <div class="plan-card">
                         <h4>Free</h4>
                         <div class="price">$0</div>
-                        <ul><li>✓ Up to 5 invoices</li><li>✓ Time tracking</li><li>✓ Basic reports</li></ul>
+                        <ul><li>✓ Up to 15 invoices</li><li>✓ Time tracking</li><li>✓ Basic reports</li></ul>
                         <button class="btn-outline current-plan">Current Plan</button>
                     </div>
                     <div class="plan-card featured">
-                        <h4>Premium</h4>
-                        <div class="price">$9<span>/month</span></div>
-                        <ul><li>✓ Unlimited invoices</li><li>✓ All features</li><li>✓ Priority support</li></ul>
-                        <button id="confirmUpgradeBtn" class="btn-primary">Upgrade Now</button>
+                    <h4>Premium</h4>
+                    <div class="price">$5<span>/month</span></div>
+                    <ul>
+                    <li>✓ Unlimited invoices</li>
+                    <li>✓ All features</li>
+                    </ul>
+                    <button id="confirmUpgradeBtn" class="btn-primary">Upgrade Now</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ============================================ -->
-        <!-- GETTING STARTED GUIDE (DETAILED VERSION) -->
+        <!-- GETTING STARTED GUIDE -->
         <!-- ============================================ -->
         <div class="help-section">
             <div class="help-header" onclick="toggleHelp()">
@@ -90,14 +95,11 @@
                 <span id="helpIcon">▼</span>
             </div>
             <div class="help-content" id="helpContent">
-                <!-- Quick Start -->
                 <div class="help-quickstart">
                     <h3>🚀 Quick Start - 30 Seconds</h3>
                     <p>1️⃣ Go to <strong>Quick Invoice</strong> tab → Enter client name → Add item → Generate PDF</p>
                     <p>2️⃣ OR go to <strong>Time Tracker</strong> tab → Start timer → Stop → Create invoice from tracked hours</p>
                 </div>
-
-                <!-- Time Tracker Guide -->
                 <div class="help-card">
                     <h4>⏱️ Time Tracker - Complete Guide</h4>
                     <div class="help-step">1. Go to <strong>👥 Clients</strong> tab → Click <strong>+ Add Client</strong></div>
@@ -109,8 +111,6 @@
                     <div class="help-step">7. Go to <strong>📄 Invoices</strong> tab → <strong>Create Invoice from Time Entries</strong></div>
                     <div class="help-step">8. Select client → Check time entries → Generate Invoice → Download PDF</div>
                 </div>
-
-                <!-- Quick Invoice Guide -->
                 <div class="help-card">
                     <h4>⚡ Quick Invoice - Complete Guide</h4>
                     <div class="help-step">1. Go to <strong>⚡ Quick Invoice</strong> tab</div>
@@ -123,8 +123,6 @@
                     <div class="help-step">8. Click <strong>👁️ Preview</strong> to review invoice</div>
                     <div class="help-step">9. Click <strong>📄 Generate & Download PDF</strong> → Save or email to client</div>
                 </div>
-
-                <!-- Language & Currency Guide -->
                 <div class="help-card">
                     <h4>🌍 Language & Currency Guide</h4>
                     <div class="help-step">🌐 <strong>Change Language:</strong> Top-right corner dropdown → Select your preferred language</div>
@@ -132,8 +130,6 @@
                     <div class="help-step">💱 <strong>Change Currency:</strong> Quick Invoice tab → Additional Information → Currency dropdown</div>
                     <div class="help-step">🌎 <strong>Available Currencies:</strong> USD ($), EUR (€), GBP (£), INR (₹), CNY (¥), SAR (﷼), KWD (د.ك), RUB (₽), BDT (৳), JPY (¥), CAD (C$), AUD (A$)</div>
                 </div>
-
-                <!-- Managing Data Guide -->
                 <div class="help-card">
                     <h4>📊 Managing Your Data</h4>
                     <div class="help-step">📄 <strong>View Invoices:</strong> Go to Invoices tab → See all your invoices</div>
@@ -143,8 +139,6 @@
                     <div class="help-step">📥 <strong>Import Backup:</strong> Click Import Data button → Select your backup file</div>
                     <div class="help-step">🗑️ <strong>Delete Items:</strong> Click red Delete button next to any client, time entry, or invoice</div>
                 </div>
-
-                <!-- FAQ Section -->
                 <div class="help-faq">
                     <h4>❓ Frequently Asked Questions</h4>
                     <div class="faq-item"><strong>🔹 Is my data safe?</strong> ✅ Yes! Create an account for secure private storage.</div>
@@ -154,8 +148,6 @@
                     <div class="faq-item"><strong>🔹 Can I change currency for existing invoices?</strong> ✅ Currency is set when creating the invoice.</div>
                     <div class="faq-item"><strong>🔹 How do I add multiple items to one invoice?</strong> ✅ Click "+ Add Item" button as many times as needed.</div>
                 </div>
-
-                <!-- Need Help Section -->
                 <div class="help-support">
                     <div class="help-tip">
                         💡 <strong>Need Help? Try these steps first:</strong>
@@ -188,6 +180,7 @@
             <button class="tab-btn" data-tab="tab4">📄 Invoices</button>
             <button class="tab-btn" data-tab="tab5">👥 Clients</button>
             <button class="tab-btn" data-tab="tab6">📋 Time Entries</button>
+            <button class="tab-btn" data-tab="tab7">⚙️ Settings</button>
         </div>
 
         <!-- ============================================ -->
@@ -196,50 +189,41 @@
         <div id="tab1" class="panel active-panel">
             <div class="timer-section">
                 <h2>⏱️ Active Timer</h2>
-                
                 <div class="input-group">
                     <label>👥 Select Client / Project:</label>
                     <select id="timerClientSelect" class="form-control">
                         <option value="">-- Select a client --</option>
                     </select>
                 </div>
-
                 <div class="input-group">
                     <label>📝 Task Description:</label>
                     <input type="text" id="timerTaskDesc" class="form-control" placeholder="e.g., Website Development, Logo Design">
                 </div>
-
                 <div class="input-group">
                     <label>⏱️ Time Duration:</label>
                     <div class="timer-display-box">
                         <span id="timerHours">00</span>:<span id="timerMinutes">00</span>:<span id="timerSeconds">00</span>
                     </div>
                 </div>
-
                 <div class="input-group">
                     <label>💰 Hourly Rate ($):</label>
                     <input type="text" id="timerHourlyRate" class="form-control" readonly placeholder="Select client to see rate">
                 </div>
-
                 <div class="input-group">
                     <label>💵 Amount Earned (so far):</label>
                     <input type="text" id="timerEarned" class="form-control" readonly value="$0.00">
                 </div>
-
                 <div class="timer-buttons">
                     <button id="startTimerBtn" class="timer-btn start-btn">▶️ Start Timer</button>
                     <button id="stopTimerBtn" class="timer-btn stop-btn" disabled>⏸️ Stop Timer</button>
                     <button id="resetTimerBtn" class="timer-btn reset-btn" disabled>⟳ Reset</button>
                 </div>
             </div>
-
             <div class="recent-entries">
                 <h3>📋 Recent Time Entries</h3>
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead>
-                            <tr><th>Client</th><th>Task</th><th>Duration</th><th>Rate</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr>
-                        </thead>
+                        <thead><tr><th>Client</th><th>Task</th><th>Duration</th><th>Rate</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="recentEntriesTableBody"></tbody>
                     </table>
                 </div>
@@ -254,7 +238,6 @@
                 <h2>⚡ Create Invoice in Seconds</h2>
                 <p>No time tracking needed. Just add items and generate PDF.</p>
             </div>
-
             <div class="form-section">
                 <h3>👤 Client Details</h3>
                 <div class="row">
@@ -272,7 +255,6 @@
                     <input type="text" id="invClientAddress" class="form-control" placeholder="Street, City, Country">
                 </div>
             </div>
-
             <div class="form-section">
                 <h3>📄 Invoice Details</h3>
                 <div class="row">
@@ -290,13 +272,18 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-section">
                 <h3>📦 Items / Services</h3>
+                <div class="invoice-headers">
+                    <span class="header-desc">Description</span>
+                    <span class="header-qty">Qty</span>
+                    <span class="header-price">Price per Piece/Service</span>
+                    <span class="header-total">Total Price</span>
+                    <span class="header-action">Action</span>
+                </div>
                 <div id="invoiceItemsContainer"></div>
                 <button id="addInvoiceItemBtn" class="btn-secondary">+ Add Item</button>
             </div>
-
             <div class="form-section">
                 <h3>⚙️ Additional Information</h3>
                 <div class="row">
@@ -318,7 +305,7 @@
                     </div>
                     <div class="form-group">
                         <label>Tax Rate (%)</label>
-                        <input type="number" id="invTaxRate" class="form-control" value="0" step="0.1">
+                        <input type="text" id="invTaxRate" class="form-control" value="0" placeholder="e.g., 10, 18, GST, VAT">
                     </div>
                     <div class="form-group">
                         <label>Discount ($)</label>
@@ -330,13 +317,11 @@
                     <textarea id="invNotes" rows="3" class="form-control" placeholder="Payment due within 30 days. Thank you!"></textarea>
                 </div>
             </div>
-
             <div class="action-buttons">
                 <button id="previewInvoiceBtn" class="btn-primary">👁️ Preview Invoice</button>
                 <button id="generatePdfBtn" class="btn-primary" style="background: #00d25b;">📄 Generate & Download PDF</button>
                 <button id="resetInvoiceBtn" class="btn-secondary">⟳ Reset Form</button>
             </div>
-
             <div id="previewArea" class="preview-area" style="display: none;">
                 <h3>📄 Invoice Preview</h3>
                 <div id="previewContent" class="preview-content"></div>
@@ -350,14 +335,12 @@
             <div class="form-section">
                 <h2>⏱️ Create Invoice from Tracked Time</h2>
                 <p>Select unpaid time entries below. Amount = Hours × Hourly Rate</p>
-                
                 <div class="input-group">
                     <label>👥 Filter by Client:</label>
                     <select id="timeInvoiceFilter" class="form-control">
                         <option value="all">-- All Clients --</option>
                     </select>
                 </div>
-                
                 <div id="unpaidEntriesContainer"></div>
                 <button id="createTimeInvoiceBtn" class="btn-primary" style="margin-top: 20px; display: none;">📄 Create Invoice from Selected</button>
             </div>
@@ -371,9 +354,7 @@
                 <h2>📄 All Invoices</h2>
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead>
-                            <tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-                        </thead>
+                        <thead><tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody id="invoicesTableBody"></tbody>
                     </table>
                 </div>
@@ -389,9 +370,7 @@
                 <button id="addClientBtn" class="btn-primary">+ Add New Client</button>
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead>
-                            <tr><th>Name</th><th>Email</th><th>Hourly Rate</th><th>Actions</th></tr>
-                        </thead>
+                        <thead><tr><th>Name</th><th>Email</th><th>Hourly Rate</th><th>Actions</th></tr></thead>
                         <tbody id="clientsTableBody"></tbody>
                     </table>
                 </div>
@@ -406,12 +385,47 @@
                 <h2>📋 All Time Entries</h2>
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead>
-                            <tr><th>Client</th><th>Task</th><th>Duration</th><th>Rate</th><th>Amount</th><th>Date</th><th>Invoiced</th><th>Action</th></tr>
-                        </thead>
+                        <thead><tr><th>Client</th><th>Task</th><th>Duration</th><th>Rate</th><th>Amount</th><th>Date</th><th>Invoiced</th><th>Action</th></tr></thead>
                         <tbody id="allEntriesTableBody"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- TAB 7: SETTINGS -->
+        <!-- ============================================ -->
+        <div id="tab7" class="panel">
+            <div class="form-section">
+                <h2>⚙️ Business Settings</h2>
+                <p>Your business information will appear on all your invoices.</p>
+            </div>
+            <div class="form-section">
+                <h3>🏢 Your Business Information</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Business / Your Name *</label>
+                        <input type="text" id="senderName" class="form-control" placeholder="e.g., John Doe or ABC Company">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Location / Address</label>
+                        <input type="text" id="senderAddress" class="form-control" placeholder="e.g., New York, USA">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Email (comma separated)</label>
+                        <input type="text" id="senderEmail" class="form-control" placeholder="e.g., john@example.com, support@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone (comma separated)</label>
+                        <input type="text" id="senderPhone" class="form-control" placeholder="e.g., +1 234 567 890, +1 987 654 321">
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="saveSettingsBtn" class="btn-primary">💾 Save Settings</button>
+                <button id="resetSettingsBtn" class="btn-secondary">⟳ Reset to Default</button>
             </div>
         </div>
 
@@ -422,14 +436,13 @@
             <h2>🎥 Video Tutorial Coming Soon!</h2>
             <p>Step-by-step video guide will be available here.</p>
         </div>
-
         <footer>
             <p>© 2025 Freelance Pro | Secure private account</p>
         </footer>
     </div>
 
     <!-- ============================================ -->
-    <!-- CLIENT MODAL -->
+    <!-- MODALS -->
     <!-- ============================================ -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
@@ -454,9 +467,6 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- LOGIN MODAL -->
-    <!-- ============================================ -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -476,9 +486,6 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- SIGNUP MODAL -->
-    <!-- ============================================ -->
     <div id="signupModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>

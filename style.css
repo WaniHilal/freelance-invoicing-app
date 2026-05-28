@@ -1,5 +1,5 @@
 /* ============================================ */
-/* FREELANCE PRO - COMPLETE STYLESHEET (CLEAN)
+/* FREELANCE PRO - COMPLETE STYLESHEET
 /* ============================================ */
 
 /* -------------------------------------------- */
@@ -12,7 +12,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI Symbol', Montserrat, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     padding: 20px;
@@ -54,6 +54,19 @@ body {
     font-size: 14px;
 }
 
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.header-right-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
 .language-selector {
     display: flex;
     align-items: center;
@@ -74,44 +87,46 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-/* Header Buttons Layout */
-.header-buttons {
-    display: flex;
-    gap: 10px;
-    margin: 10px 0;
-    flex-wrap: wrap;
 }
 
 .auth-buttons {
     display: flex;
     gap: 10px;
-    margin: 10px 0;
-    flex-wrap: wrap;
 }
 
 #userInfo {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 10px 0;
-    flex-wrap: wrap;
+}
+
+.plan-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.plan-tag-free {
+    background: #ffc107;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
+}
+
+.plan-tag-premium {
+    background: #00d25b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
 }
 
 /* -------------------------------------------- */
-/* BUTTON STYLES - CLEAN & CONSISTENT
+/* BUTTON STYLES
 /* -------------------------------------------- */
-
-/* Secondary Button (Export, Import, Cancel, etc.) */
 .btn-secondary {
     background: #6c757d !important;
     color: white !important;
@@ -129,7 +144,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* Primary Button (Sign Up, Save, Generate PDF) */
 .btn-primary {
     background: linear-gradient(135deg, #1a73e8, #0d47a1);
     color: white;
@@ -146,7 +160,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* Clear Data Button */
 .clear-btn {
     background: #dc3545 !important;
     color: white !important;
@@ -156,7 +169,6 @@ body {
     background: #c82333 !important;
 }
 
-/* Premium Button */
 .btn-premium {
     background: linear-gradient(135deg, #f39c12, #e67e22);
     color: white;
@@ -167,7 +179,24 @@ body {
     font-weight: 600;
 }
 
-/* Timer Buttons */
+#addInvoiceItemBtn {
+    background: #6c757d !important;
+    color: white !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+#addInvoiceItemBtn:hover {
+    background: #5a6268 !important;
+}
+
+/* -------------------------------------------- */
+/* TIMER BUTTONS
+/* -------------------------------------------- */
 .timer-btn {
     padding: 12px 30px;
     border: none;
@@ -215,62 +244,7 @@ body {
 }
 
 /* -------------------------------------------- */
-/* QUICK INVOICE - ADD ITEM BUTTON
-/* -------------------------------------------- */
-#addInvoiceItemBtn {
-    background: #6c757d !important;
-    color: white !important;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-weight: 500;
-}
-
-#addInvoiceItemBtn:hover {
-    background: #5a6268 !important;
-}
-
-/* -------------------------------------------- */
-/* ACTION BUTTONS
-/* -------------------------------------------- */
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    margin: 25px 0;
-    flex-wrap: wrap;
-}
-
-/* -------------------------------------------- */
-/* PLAN BADGE
-/* -------------------------------------------- */
-.plan-badge {
-    background: #f0f0f0;
-    padding: 6px 12px;
-    border-radius: 40px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.plan-tag-free {
-    background: #ffc107;
-    color: #333;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-right: 6px;
-}
-
-.plan-tag-premium {
-    background: #00d25b;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-right: 6px;
-}
-
-/* -------------------------------------------- */
-/* HELP / GETTING STARTED SECTION
+/* HELP SECTION
 /* -------------------------------------------- */
 .help-section {
     background: white;
@@ -404,7 +378,7 @@ body {
 }
 
 /* -------------------------------------------- */
-/* TABS NAVIGATION
+/* TABS
 /* -------------------------------------------- */
 .tabs {
     display: flex;
@@ -477,18 +451,6 @@ body {
     padding-left: 12px;
 }
 
-.input-group {
-    margin-bottom: 20px;
-}
-
-.input-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
 .form-control {
     width: 100%;
     padding: 12px 15px;
@@ -502,11 +464,6 @@ body {
     outline: none;
     border-color: #1a73e8;
     box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-}
-
-.form-control[readonly] {
-    background: #f5f5f5;
-    cursor: not-allowed;
 }
 
 .row {
@@ -546,22 +503,13 @@ body {
     text-align: center;
 }
 
-.timer-section .input-group label {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.timer-section .form-control {
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-}
-
 .timer-display-box {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
     padding: 20px;
     text-align: center;
     font-size: 48px;
-    font-family: monospace;
+    font-family: Segoe UI Symbol;
     font-weight: bold;
     letter-spacing: 5px;
 }
@@ -575,74 +523,108 @@ body {
 }
 
 /* -------------------------------------------- */
-/* ITEM ROWS (QUICK INVOICE)
+/* INVOICE ITEMS - FIXED LAYOUT
 /* -------------------------------------------- */
+.invoice-headers {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    background: #f0f0f0;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.header-desc {
+    flex: 3;
+    min-width: 180px;
+    padding-left: 8px;
+}
+
+.header-qty {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+}
+
+.header-price {
+    flex: 1.5;
+    min-width: 120px;
+    text-align: center;
+}
+
+.header-total {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+}
+
+.header-action {
+    flex: 0.5;
+    min-width: 50px;
+    text-align: center;
+}
+
 #invoiceItemsContainer {
     margin-bottom: 15px;
 }
 
 .item-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
     align-items: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
 }
 
-.item-row input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.item-row .item-desc {
+.item-desc {
     flex: 3;
     min-width: 180px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
 }
 
-.item-row .item-qty {
+.item-qty {
     flex: 1;
     min-width: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
 }
 
-.item-row .item-price {
+.item-price-per-piece {
+    flex: 1.5;
+    min-width: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.item-total {
     flex: 1;
     min-width: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    text-align: center;
 }
 
-.item-row button {
+.remove-item-btn {
+    flex: 0.5;
+    min-width: 50px;
+    padding: 10px;
     background: #dc3545;
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 8px 15px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
-.item-row button:hover {
+.remove-item-btn:hover {
     background: #c82333;
-}
-
-/* -------------------------------------------- */
-/* PREVIEW AREA
-/* -------------------------------------------- */
-.preview-area {
-    margin-top: 25px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
-}
-
-.preview-content {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    max-height: 400px;
-    overflow-y: auto;
 }
 
 /* -------------------------------------------- */
@@ -676,7 +658,6 @@ body {
     background: #f8f9fa;
 }
 
-/* Badges */
 .badge-paid {
     background: #d4edda;
     color: #155724;
@@ -698,41 +679,7 @@ body {
 }
 
 /* -------------------------------------------- */
-/* UNPAID ENTRIES LIST
-/* -------------------------------------------- */
-#unpaidEntriesContainer {
-    max-height: 400px;
-    overflow-y: auto;
-    margin: 15px 0;
-}
-
-.entry-item {
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 12px;
-}
-
-.entry-item:hover {
-    background: #e8f0fe;
-    border-color: #1a73e8;
-}
-
-.entry-item input[type="checkbox"] {
-    margin-right: 12px;
-    transform: scale(1.1);
-    cursor: pointer;
-}
-
-.entry-item label {
-    cursor: pointer;
-    display: inline-block;
-    width: calc(100% - 30px);
-}
-
-/* -------------------------------------------- */
-/* MODAL (POPUP)
+/* MODAL
 /* -------------------------------------------- */
 .modal {
     display: none;
@@ -783,21 +730,6 @@ body {
     color: #dc3545;
 }
 
-.btn-full {
-    width: 100%;
-}
-
-.modal-note {
-    margin-top: 15px;
-    text-align: center;
-    font-size: 0.85rem;
-}
-
-.modal-note a {
-    color: #1a73e8;
-    text-decoration: none;
-}
-
 /* -------------------------------------------- */
 /* PREMIUM BANNER
 /* -------------------------------------------- */
@@ -832,7 +764,6 @@ body {
     border: none;
     font-size: 2rem;
     cursor: pointer;
-    color: #999;
 }
 
 .premium-plans {
@@ -885,7 +816,72 @@ body {
 }
 
 /* -------------------------------------------- */
-/* VIDEO TUTORIAL & FOOTER
+/* PREVIEW AREA
+/* -------------------------------------------- */
+.preview-area {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    border: 1px solid #e0e0e0;
+}
+
+.preview-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* -------------------------------------------- */
+/* UNPAID ENTRIES
+/* -------------------------------------------- */
+#unpaidEntriesContainer {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 15px 0;
+}
+
+.entry-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.entry-item:hover {
+    background: #e8f0fe;
+    border-color: #1a73e8;
+}
+
+.entry-item input[type="checkbox"] {
+    margin-right: 12px;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.entry-item label {
+    cursor: pointer;
+    display: inline-block;
+    width: calc(100% - 30px);
+}
+
+/* -------------------------------------------- */
+/* ACTION BUTTONS
+/* -------------------------------------------- */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+/* -------------------------------------------- */
+/* VIDEO & FOOTER
 /* -------------------------------------------- */
 .video-tutorial {
     background: linear-gradient(135deg, #1a73e8, #0d47a1);
@@ -901,6 +897,39 @@ footer {
     padding: 20px;
     color: #666;
     font-size: 13px;
+}
+
+/* -------------------------------------------- */
+/* UTILITY CLASSES
+/* -------------------------------------------- */
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.placeholder-text {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.recent-entries {
+    margin-top: 25px;
+}
+
+.recent-entries h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#welcomeUser {
+    font-weight: 500;
+    color: #333;
 }
 
 /* -------------------------------------------- */
@@ -923,7 +952,13 @@ footer {
     
     .header-top {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+    }
+    
+    .header-buttons,
+    .header-right-controls {
+        justify-content: center;
+        align-items: center;
     }
     
     .logo-area h1 {
@@ -979,11 +1014,16 @@ footer {
         width: 100%;
     }
     
-    .item-row {
-        flex-direction: column;
+    .invoice-headers {
+        display: none;
     }
     
-    .item-row input {
+    .item-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .item-desc, .item-qty, .item-price-per-piece, .item-total, .remove-item-btn {
         width: 100%;
     }
     
@@ -998,22 +1038,10 @@ footer {
         width: 95%;
     }
     
-    .header-buttons,
-    .auth-buttons,
-    #userInfo {
-        flex-direction: column;
-        width: 100%;
-    }
-    
     .header-buttons button,
     .auth-buttons button,
     #userInfo button {
         width: 100%;
-    }
-    
-    .header-right {
-        flex-direction: column;
-        align-items: flex-start;
     }
     
     .premium-plans {
@@ -1035,36 +1063,44 @@ footer {
         padding: 15px;
     }
 }
-
-/* -------------------------------------------- */
-/* UTILITY CLASSES
-/* -------------------------------------------- */
-.text-center {
-    text-align: center;
+/* Settings Tab Styles */
+.form-text {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 4px;
+    display: block;
 }
 
-.hidden {
-    display: none;
-}
-
-.placeholder-text {
-    text-align: center;
-    padding: 40px;
-    color: #888;
+#tab7 .form-section {
     background: #f8f9fa;
+    padding: 20px;
     border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-.recent-entries {
-    margin-top: 25px;
-}
-
-.recent-entries h3 {
+#tab7 .form-section h3 {
+    margin-top: 0;
     margin-bottom: 15px;
-    color: #333;
 }
 
-#welcomeUser {
-    font-weight: 500;
-    color: #333;
+#tab7 .action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#tab7 .action-buttons button {
+    padding: 10px 24px;
+}
+/* Force tabs to wrap and show all buttons */
+.tabs {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin-bottom: 25px !important;
+}
+
+.tab-btn {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
 }

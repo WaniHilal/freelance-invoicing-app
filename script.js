@@ -9,7 +9,7 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 // Initialize Firebase (ONCE!)
 const app = initializeApp(firebaseConfig);
@@ -56,7 +56,118 @@ const companyInfo = {
     accountNumber: '',
     paymentInstructions: ''
 };
+// ============================================
+// COMPANY SETTINGS FUNCTIONS (ADD THESE BELOW)
+// ============================================
 
+function loadCompanyInfo() {
+    const saved = localStorage.getItem('freelance_sender_info');
+    if (saved) {
+        const data = JSON.parse(saved);
+        if (document.getElementById('senderName')) document.getElementById('senderName').value = data.senderName || '';
+        if (document.getElementById('senderAddress')) document.getElementById('senderAddress').value = data.senderAddress || '';
+        if (document.getElementById('senderEmail')) document.getElementById('senderEmail').value = data.senderEmail || '';
+        if (document.getElementById('senderPhone')) document.getElementById('senderPhone').value = data.senderPhone || '';
+    }
+}
+
+function saveCompanyInfo() {
+    const data = {
+        senderName: document.getElementById('senderName')?.value || '',
+        senderAddress: document.getElementById('senderAddress')?.value || '',
+        senderEmail: document.getElementById('senderEmail')?.value || '',
+        senderPhone: document.getElementById('senderPhone')?.value || ''
+    };
+    localStorage.setItem('freelance_sender_info', JSON.stringify(data));
+    alert('✅ Settings saved!');
+}
+
+function resetCompanyInfo() {
+    if (confirm('Reset all business settings?')) {
+        if (document.getElementById('senderName')) document.getElementById('senderName').value = '';
+        if (document.getElementById('senderAddress')) document.getElementById('senderAddress').value = '';
+        if (document.getElementById('senderEmail')) document.getElementById('senderEmail').value = '';
+        if (document.getElementById('senderPhone')) document.getElementById('senderPhone').value = '';
+        localStorage.removeItem('freelance_sender_info');
+        alert('✅ Settings reset!');
+    }
+}
+// ============================================
+// ============================================
+// DISPOSABLE EMAIL DOMAINS (BLOCK LIST)
+// ============================================
+const disposableDomains = [
+    'tempmail.com',
+    '10minutemail.com',
+    'guerrillamail.com',
+    'mailinator.com',
+    'yopmail.com',
+    'throwawaymail.com',
+    'temp-mail.org',
+    'minafter.com',
+    'sharklasers.com',
+    'guerrillamail.net',
+    'guerrillamail.org',
+    'guerrillamail.biz',
+    'mailnator.com',
+    'tempail.com',
+    'trashmail.com',
+    'spambox.us',
+    'tempmail.net',
+    'mailtemp.net',
+    'fakeinbox.com',
+    'dispostable.com'
+];
+// ============================================
+// CHECK DISPOSABLE EMAIL
+// ============================================
+function isDisposableEmail(email) {
+    if (!email) return false;
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!domain) return false;
+    return disposableDomains.includes(domain);
+}
+// ============================================
+// IP TRACKING FUNCTIONS
+// ============================================
+
+async function getUserIP() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error("IP fetch failed:", error);
+        return null;
+    }
+}
+
+async function checkIPLimit(ip) {
+    if (!ip) return true; // Allow if IP detection fails
+    
+    try {
+        const ipRef = collection(db, 'ip_tracking');
+        const q = query(ipRef, where('ip', '==', ip));
+        const snapshot = await getDocs(q);
+        return snapshot.size < 2; // Max 2 accounts per IP
+    } catch (error) {
+        console.error("IP check failed:", error);
+        return true; // Allow on error
+    }
+}
+
+async function storeIPForUser(userId, ip) {
+    if (!ip) return;
+    try {
+        await setDoc(doc(db, 'ip_tracking', userId), {
+            ip: ip,
+            createdAt: new Date(),
+            userId: userId
+        });
+    } catch (error) {
+        console.error("Store IP failed:", error);
+    }
+}
 // ============================================
 // CURRENCY MAPPING FOR PDF
 // ============================================
@@ -243,6 +354,7 @@ function updateAuthUI() {
         document.getElementById('welcomeUser').innerHTML = `👋 ${currentUser.name || currentUser.email}`;
         
         const invoiceCount = invoices.length;
+        console.log("Invoice count:", invoiceCount);
         const isPremium = currentUser.plan === 'premium';
         const planBadge = document.getElementById('planBadge');
         
@@ -250,8 +362,8 @@ function updateAuthUI() {
             if (isPremium) {
                 planBadge.innerHTML = '<span class="plan-tag-premium">⭐ PREMIUM</span> Unlimited invoices';
             } else {
-                const remaining = Math.max(0, 5 - invoiceCount);
-                planBadge.innerHTML = `<span class="plan-tag-free">FREE TRIAL</span> ${remaining}/5 invoices left`;
+                const remaining = Math.max(0, 15 - invoiceCount);
+                planBadge.innerHTML = `<span class="plan-tag-free">FREE TRIAL</span> ${remaining}/15 invoices left`;
             }
         }
     } else {
@@ -263,7 +375,7 @@ function updateAuthUI() {
 function canCreateInvoice() {
     if (!currentUser) return false;
     if (currentUser.plan === 'premium') return true;
-    return invoices.length < 5;
+    return invoices.length < 15;
 }
 
 function checkInvoiceLimit() {
@@ -276,9 +388,29 @@ function checkInvoiceLimit() {
 }
 
 async function firebaseSignUp(name, email, password) {
+    // Check for disposable email
+    if (isDisposableEmail(email)) {
+        return { success: false, error: 'Please use a real email address. Temporary/disposable emails are not allowed.' };
+    }
+    
+    // Get IP and check limit
+    const userIP = await getUserIP();
+    if (userIP) {
+        const ipAllowed = await checkIPLimit(userIP);
+        if (!ipAllowed) {
+            return { success: false, error: 'Too many accounts created from your network. Maximum 2 accounts allowed per IP address.' };
+        }
+    }
+    
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
+        
+        // Store IP tracking
+        if (userIP) {
+            await storeIPForUser(userCredential.user.uid, userIP);
+        }
+        
         await setDoc(doc(db, 'users', userCredential.user.uid), {
             name: name,
             email: email,
@@ -286,13 +418,14 @@ async function firebaseSignUp(name, email, password) {
             clients: [],
             timeEntries: [],
             invoices: [],
-            createdAt: new Date()
+            createdAt: new Date(),
+            signupIP: userIP
         });
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };
     }
-}
+} 
 
 async function firebaseLogin(email, password) {
     try {
@@ -833,6 +966,7 @@ function viewInvoice(id) {
 // QUICK INVOICE FUNCTIONS (FIXED)
 // ============================================
 
+
 function renderInvoiceItems() {
     const container = document.getElementById('invoiceItemsContainer');
     if (!container) {
@@ -843,47 +977,74 @@ function renderInvoiceItems() {
     container.innerHTML = '';
     
     invoiceItems.forEach((item, idx) => {
+        const qty = parseFloat(item.qty) || 0;
+        const pricePerPiece = parseFloat(item.pricePerPiece) || 0;
+        const totalPrice = qty * pricePerPiece;
+        
         const row = document.createElement('div');
         row.className = 'item-row';
         row.setAttribute('data-index', idx);
         row.innerHTML = `
             <input type="text" class="item-desc" placeholder="Description" value="${escapeHtml(item.desc || '')}" data-index="${idx}" data-field="desc">
-            <input type="number" class="item-qty" placeholder="Qty" value="${item.qty || 1}" data-index="${idx}" data-field="qty" step="1">
-            <input type="number" class="item-price" placeholder="Price" value="${item.price || 0}" data-index="${idx}" data-field="price" step="0.01">
+            <input type="text" class="item-qty" placeholder="Qty (e.g., 10, 5kg)" value="${item.qty || ''}" data-index="${idx}" data-field="qty">
+            <input type="text" class="item-price-per-piece" placeholder="Price per Piece/Service" value="${item.pricePerPiece || ''}" data-index="${idx}" data-field="pricePerPiece">
+            <input type="text" class="item-total" placeholder="Total Price" value="${totalPrice > 0 ? totalPrice.toFixed(2) : ''}" readonly data-index="${idx}">
             <button class="remove-item-btn" data-index="${idx}">✕</button>
         `;
         container.appendChild(row);
     });
     
-    // Attach event listeners to new inputs
-    document.querySelectorAll('.item-desc, .item-qty, .item-price').forEach(input => {
+    // Calculate and update total price when Qty or Price changes
+    document.querySelectorAll('.item-qty, .item-price-per-piece').forEach(input => {
         input.addEventListener('input', function(e) {
             const idx = parseInt(this.getAttribute('data-index'));
             const field = this.getAttribute('data-field');
-            let value = this.value;
-            
-            if (field === 'qty') value = parseInt(value) || 1;
-            if (field === 'price') value = parseFloat(value) || 0;
+            const value = this.value;
             
             if (invoiceItems[idx]) {
                 invoiceItems[idx][field] = value;
+                
+                // Calculate new total
+                const qty = parseFloat(invoiceItems[idx].qty) || 0;
+                const pricePerPiece = parseFloat(invoiceItems[idx].pricePerPiece) || 0;
+                const newTotal = qty * pricePerPiece;
+                
+                // Update the total field in the same row
+                const row = this.closest('.item-row');
+                const totalInput = row.querySelector('.item-total');
+                if (totalInput) {
+                    totalInput.value = newTotal > 0 ? newTotal.toFixed(2) : '';
+                }
             }
         });
     });
     
-    // Attach click events to remove buttons
+    // Save description changes
+    document.querySelectorAll('.item-desc').forEach(input => {
+        input.addEventListener('input', function(e) {
+            const idx = parseInt(this.getAttribute('data-index'));
+            const value = this.value;
+            if (invoiceItems[idx]) {
+                invoiceItems[idx].desc = value;
+            }
+        });
+    });
+    
+    // Delete item
     document.querySelectorAll('.remove-item-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             const idx = parseInt(this.getAttribute('data-index'));
             if (invoiceItems.length > 1) {
                 invoiceItems.splice(idx, 1);
             } else {
-                invoiceItems[0] = { desc: '', qty: 1, price: 0 };
+                invoiceItems[0] = { desc: '', qty: '', pricePerPiece: '' };
             }
             renderInvoiceItems();
         });
     });
 }
+
+
 
 function addInvoiceItem() {
     invoiceItems.push({ desc: '', qty: 1, price: 0 });
@@ -905,14 +1066,22 @@ function removeInvoiceItem(index) {
 
 function calculateInvoiceTotal() {
     let subtotal = 0;
+    
     invoiceItems.forEach(item => {
-        subtotal += (item.qty || 0) * (item.price || 0);
+        // Skip items without description or price
+        if (!item.desc || !item.pricePerPiece) return;
+        
+        const qty = parseFloat(item.qty) || 0;
+        const pricePerPiece = parseFloat(item.pricePerPiece) || 0;
+        subtotal += qty * pricePerPiece;
     });
+    
     const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
     const discount = parseFloat(document.getElementById('invDiscount').value) || 0;
     const tax = subtotal * taxRate / 100;
     const total = subtotal + tax - discount;
     const currency = document.getElementById('invCurrency').value || '$';
+    
     return { subtotal, tax, discount, total, currency };
 }
 
@@ -924,10 +1093,18 @@ function previewInvoice() {
     }
     
     const { subtotal, tax, discount, total, currency } = calculateInvoiceTotal();
+    
     let itemsHtml = '';
     invoiceItems.forEach(item => {
-        if (item.desc && item.price > 0) {
-            itemsHtml += `<div>${escapeHtml(item.desc)}: ${item.qty} x ${currency}${item.price} = ${currency}${(item.qty * item.price).toFixed(2)}</div>`;
+        if (item.desc && item.pricePerPiece) {
+            const qty = parseFloat(item.qty) || 0;
+            const pricePerPiece = parseFloat(item.pricePerPiece) || 0;
+            const totalPrice = qty * pricePerPiece;
+            itemsHtml += `
+                <div class="preview-item">
+                    ${escapeHtml(item.desc)}: ${qty} × ${currency}${pricePerPiece.toFixed(2)} = ${currency}${totalPrice.toFixed(2)}
+                </div>
+            `;
         }
     });
     
@@ -935,15 +1112,14 @@ function previewInvoice() {
         <div><strong>Client:</strong> ${escapeHtml(clientName)}</div>
         <div><strong>Invoice #:</strong> ${document.getElementById('invNumber').value || 'Auto'}</div>
         <div><strong>Items:</strong></div>
-        ${itemsHtml || 'No items'}
-        <div>Subtotal: ${currency}${subtotal.toFixed(2)}</div>
-        ${tax > 0 ? `<div>Tax (${document.getElementById('invTaxRate').value}%): ${currency}${tax.toFixed(2)}</div>` : ''}
-        ${discount > 0 ? `<div>Discount: -${currency}${discount.toFixed(2)}</div>` : ''}
-        <div><strong>Total: ${currency}${total.toFixed(2)}</strong></div>
+        <div class="preview-items">${itemsHtml || 'No items'}</div>
+        <div><strong>Subtotal:</strong> ${currency}${subtotal.toFixed(2)}</div>
+        ${tax > 0 ? `<div><strong>Tax (${document.getElementById('invTaxRate').value}%):</strong> ${currency}${tax.toFixed(2)}</div>` : ''}
+        ${discount > 0 ? `<div><strong>Discount:</strong> -${currency}${discount.toFixed(2)}</div>` : ''}
+        <div><strong>Total:</strong> ${currency}${total.toFixed(2)}</div>
     `;
     document.getElementById('previewArea').style.display = 'block';
 }
-
 function generatePDF() {
     if (!checkInvoiceLimit()) return;
     
@@ -953,14 +1129,22 @@ function generatePDF() {
         return;
     }
     
-    const validItems = invoiceItems.filter(i => i.desc && i.price > 0);
+    // Filter valid items
+    const validItems = invoiceItems.filter(i => i.desc && i.pricePerPiece);
     if (validItems.length === 0) {
-        alert('Please add at least one item');
+        alert('Please add at least one item with description and price');
         return;
     }
     
     let subtotal = 0;
-    validItems.forEach(i => { subtotal += i.qty * i.price; });
+    validItems.forEach(i => {
+        const qtyMatch = (i.qty || "").match(/[\d.]+/);
+        const qtyNum = qtyMatch ? parseFloat(qtyMatch[0]) : 0;
+        const priceMatch = (i.pricePerPiece || "").match(/[\d.]+/);
+        const priceNum = priceMatch ? parseFloat(priceMatch[0]) : 0;
+        subtotal += qtyNum * priceNum;
+    });
+    
     const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
     const discount = parseFloat(document.getElementById('invDiscount').value) || 0;
     const tax = subtotal * taxRate / 100;
@@ -979,63 +1163,123 @@ function generatePDF() {
     const doc = new jsPDF();
     let y = 20;
     
-    doc.setFontSize(20);
-    doc.setTextColor(41, 128, 185);
-    doc.text(companyInfo.name, 20, y);
-    y += 10;
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text(companyInfo.email, 20, y);
-    y += 6;
-    doc.text(companyInfo.phone, 20, y);
-    y += 6;
-    doc.text(companyInfo.address, 20, y);
-    y += 15;
+    // Company Header with Sender Info from Settings
+    doc.setFontSize(23);
+    doc.setTextColor(41, 128, 185);  // ← BLUE for business name (KEEP)
     
+    const senderInfo = localStorage.getItem('freelance_sender_info');
+    let senderName = 'Freelance Pro';
+    let senderAddress = '';
+    let senderEmail = '';
+    let senderPhone = '';
+    
+    if (senderInfo) {
+        const data = JSON.parse(senderInfo);
+        senderName = data.senderName || 'Freelance Pro';
+        senderAddress = data.senderAddress || '';
+        senderEmail = data.senderEmail || '';
+        senderPhone = data.senderPhone || '';
+    }
+    
+    doc.text(senderName, 20, y);
+    y += 10;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);  // ← CHANGED to PURE BLACK for address, email, phone
+    
+    if (senderAddress) {
+        doc.text(senderAddress, 20, y);
+        y += 6;
+    }
+    if (senderEmail) {
+        doc.text(`Email: ${senderEmail}`, 20, y);
+        y += 6;
+    }
+    if (senderPhone) {
+        doc.text(`Phone: ${senderPhone}`, 20, y);
+        y += 6;
+    }
+    y += 60;
+
+    
+    // Invoice Title - ALL TEXT PURE BLACK
     doc.setFontSize(22);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(41, 128, 185); // ← Change to BLUE
     doc.text('INVOICE', 140, 35);
     doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
+    doc.setTextColor(0, 0, 0);
     doc.text(`#: ${invoiceNumber}`, 140, 45);
     doc.text(`Date: ${issueDate}`, 140, 52);
     if (dueDate) doc.text(`Due: ${dueDate}`, 140, 59);
     
+    // Bill To - ALL TEXT PURE BLACK
     y = 75;
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setTextColor(41, 128, 185); // ← Change to BLUE
     doc.text('Bill To:', 20, y);
     y += 7;
     doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
+    doc.setTextColor(0, 0, 0);
     doc.text(clientName, 20, y);
     y += 6;
-    if (clientEmail) doc.text(clientEmail, 20, y);
-    y += 6;
-    if (clientAddress) doc.text(clientAddress, 20, y);
+    if (clientEmail) {
+        doc.text(clientEmail, 20, y);
+        y += 6;
+    }
+    if (clientAddress) {
+        doc.text(clientAddress, 20, y);
+        y += 6;
+    }
     y += 15;
+    // NO sender info here!
     
-    const tableData = validItems.map(i => [i.desc, i.qty.toString(), `${pdfCurrency}${fmt(i.price)}`, `${pdfCurrency}${fmt(i.qty * i.price)}`]);
+    // Table with pure black text
+    const tableData = validItems.map(i => {
+        const qtyText = i.qty || '0';
+        const priceText = i.pricePerPiece || '0';
+        
+        const qtyMatch = qtyText.match(/[\d.]+/);
+        const priceMatch = priceText.match(/[\d.]+/);
+        const qtyNum = qtyMatch ? parseFloat(qtyMatch[0]) : 0;
+        const priceNum = priceMatch ? parseFloat(priceMatch[0]) : 0;
+        const totalPrice = qtyNum * priceNum;
+        
+        return [
+            i.desc,
+            qtyText,
+            `${pdfCurrency}${priceText}`,
+            `${pdfCurrency}${fmt(totalPrice)}`
+        ];
+    });
+    
     doc.autoTable({
         startY: y,
-        head: [['Description', 'Qty', 'Price', 'Amount']],
+        head: [['Description', 'Qty', 'Price/Piece/Service', 'Total Price']],
         body: tableData,
         theme: 'striped',
         headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        bodyStyles: { textColor: [0, 0, 0] },  // Table body text pure black
         margin: { left: 20, right: 20 }
     });
     
     y = doc.lastAutoTable.finalY + 10;
+    
+    // Totals - Pure black
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
+    doc.setTextColor(0, 0, 0);
     doc.text('Subtotal:', 140, y);
     doc.text(`${pdfCurrency}${fmt(subtotal)}`, 180, y);
     y += 7;
-    if (taxRate > 0) {
-        doc.text(`Tax (${taxRate}%):`, 140, y);
-        doc.text(`${pdfCurrency}${fmt(tax)}`, 180, y);
-        y += 7;
-    }
+ // Get the raw tax input text (e.g., "18%", "GST", "VAT")
+const taxRateInput = document.getElementById('invTaxRate').value;
+const taxRateNum = parseFloat(taxRateInput) || 0;
+
+if (taxRateInput && taxRateInput !== '0' && taxRateInput !== '') {
+    // Show the original text (e.g., "18%", "GST", "VAT")
+    doc.text(`Tax (${taxRateInput}):`, 140, y);
+    doc.text(`${pdfCurrency}${fmt(tax)}`, 180, y);
+    y += 7;
+}
     if (discount > 0) {
         doc.text('Discount:', 140, y);
         doc.text(`-${pdfCurrency}${fmt(discount)}`, 180, y);
@@ -1048,27 +1292,36 @@ function generatePDF() {
     doc.setFont(undefined, 'normal');
     y += 20;
     
+    // Notes - Pure black
     if (notes) {
         doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
         doc.text('Notes:', 20, y);
         doc.setFontSize(8);
         doc.text(notes.length > 80 ? notes.substring(0, 77) + '...' : notes, 20, y + 7);
         y += 20;
     }
     
+    // Payment Instructions - Pure black
     doc.setFontSize(9);
     doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
     doc.text('Payment Instructions:', 20, y);
     doc.setFont(undefined, 'normal');
-    doc.setTextColor(80, 80, 80);
-    doc.text(`Bank: ${companyInfo.bankName}`, 20, y + 8);
-    doc.text(`Account: ${companyInfo.accountNumber}`, 20, y + 15);
-    doc.text(companyInfo.paymentInstructions, 20, y + 25);
+    if (companyInfo.bankName) doc.text(`Bank: ${companyInfo.bankName}`, 20, y + 8);
+    if (companyInfo.accountNumber) doc.text(`Account: ${companyInfo.accountNumber}`, 20, y + 15);
+    if (companyInfo.paymentInstructions) doc.text(companyInfo.paymentInstructions, 20, y + 25);
     
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text('Thank you for your business!', 20, 280);
-    
+    // Add "Powered by" for Free plan users
+    if (currentUser && currentUser.plan !== 'premium') {
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.text('Powered by Freelance Pro', 20, 290);
+    }
+        
     doc.save(`${invoiceNumber}_${clientName.replace(/\s/g, '_')}.pdf`);
     
     if (confirm('Save this invoice to history?')) {
@@ -1088,7 +1341,6 @@ function generatePDF() {
         alert('Invoice saved!');
     }
 }
-
 function resetInvoiceForm() {
     document.getElementById('invClientName').value = '';
     document.getElementById('invClientEmail').value = '';
@@ -1176,6 +1428,13 @@ async function downloadInvoicePDF(invoiceId) {
     doc.text('Payment Instructions:', 20, y);
     doc.text(`Bank: ${companyInfo.bankName}`, 20, y + 8);
     doc.text(`Account: ${companyInfo.accountNumber}`, 20, y + 15);
+    
+    // Add "Powered by" for Free plan users
+    if (currentUser && currentUser.plan !== 'premium') {
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.text('Powered by Freelance Pro', 20, 290);
+    }
     
     doc.save(`Invoice_${invoiceNumber}.pdf`);
 }
@@ -1307,22 +1566,45 @@ function closeModals() {
 // EVENT LISTENERS
 // ============================================
 function initEventListeners() {
+    // Timer buttons
     document.getElementById('startTimerBtn')?.addEventListener('click', startTimer);
     document.getElementById('stopTimerBtn')?.addEventListener('click', stopTimer);
     document.getElementById('resetTimerBtn')?.addEventListener('click', resetTimer);
     
+    // Settings buttons
+    console.log("🔧 Adding Settings button listeners...");
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+    
+    console.log("saveSettingsBtn found:", saveSettingsBtn);
+    console.log("resetSettingsBtn found:", resetSettingsBtn);
+    
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveCompanyInfo);
+        console.log("✅ saveSettingsBtn listener added");
+    }
+    
+    if (resetSettingsBtn) {
+        resetSettingsBtn.addEventListener('click', resetCompanyInfo);
+        console.log("✅ resetSettingsBtn listener added");
+    }
+    
+    // Client buttons
     document.getElementById('addClientBtn')?.addEventListener('click', openAddClientModal);
     document.getElementById('saveClientModalBtn')?.addEventListener('click', saveNewClient);
     document.getElementById('closeModalBtn')?.addEventListener('click', closeClientModal);
     
+    // Invoice buttons
     document.getElementById('addInvoiceItemBtn')?.addEventListener('click', addInvoiceItem);
     document.getElementById('previewInvoiceBtn')?.addEventListener('click', previewInvoice);
     document.getElementById('generatePdfBtn')?.addEventListener('click', generatePDF);
     document.getElementById('resetInvoiceBtn')?.addEventListener('click', resetInvoiceForm);
     
+    // Time invoicing
     document.getElementById('timeInvoiceFilter')?.addEventListener('change', () => refreshUnpaidEntriesList());
     document.getElementById('createTimeInvoiceBtn')?.addEventListener('click', createTimeInvoice);
     
+    // Data management
     document.getElementById('exportBtn')?.addEventListener('click', exportAllData);
     document.getElementById('importBtn')?.addEventListener('click', () => {
         const input = document.createElement('input');
@@ -1331,22 +1613,32 @@ function initEventListeners() {
         input.onchange = (e) => importDataFile(e.target.files[0]);
         input.click();
     });
-    
     document.getElementById('clearDataBtn')?.addEventListener('click', clearAllData);
     
+    // Auth buttons
     document.getElementById('loginBtn')?.addEventListener('click', () => document.getElementById('loginModal').style.display = 'flex');
     document.getElementById('signupBtn')?.addEventListener('click', () => document.getElementById('signupModal').style.display = 'flex');
     document.getElementById('logoutBtn')?.addEventListener('click', async () => { 
-    await firebaseLogout(); 
-    location.reload(); 
-});
+        await firebaseLogout(); 
+        location.reload(); 
+    });
     document.getElementById('upgradeBtn')?.addEventListener('click', showPremiumBanner);
     document.getElementById('confirmUpgradeBtn')?.addEventListener('click', upgradeToPremium);
     document.getElementById('closePremiumBanner')?.addEventListener('click', () => document.getElementById('premiumBanner').style.display = 'none');
     
-    document.getElementById('switchToSignup')?.addEventListener('click', (e) => { e.preventDefault(); closeModals(); document.getElementById('signupModal').style.display = 'flex'; });
-    document.getElementById('switchToLogin')?.addEventListener('click', (e) => { e.preventDefault(); closeModals(); document.getElementById('loginModal').style.display = 'flex'; });
+    // Modal switches
+    document.getElementById('switchToSignup')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        closeModals(); 
+        document.getElementById('signupModal').style.display = 'flex'; 
+    });
+    document.getElementById('switchToLogin')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        closeModals(); 
+        document.getElementById('loginModal').style.display = 'flex'; 
+    });
     
+    // Modal close
     document.querySelectorAll('.close-modal').forEach(btn => btn.onclick = closeModals);
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
@@ -1354,6 +1646,7 @@ function initEventListeners() {
         }
     });
     
+    // Timer client select
     document.getElementById('timerClientSelect')?.addEventListener('change', function() {
         const clientId = this.value;
         if (clientId) {
@@ -1462,4 +1755,8 @@ if (logoutButton) {
 }
 // Start the app
 init();
+// Make invoice functions global for HTML onclick buttons
+window.viewInvoice = viewInvoice;
+window.downloadInvoicePDF = downloadInvoicePDF;
+window.markInvoicePaid = markInvoicePaid;
 window.toggleHelp = toggleHelp;
